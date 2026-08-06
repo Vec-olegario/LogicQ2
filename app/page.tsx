@@ -50,7 +50,7 @@ const features = [
 ]
 
 const stats = [
-  { value: "4", label: "Módulos operacionais" },
+  { value: "", label: "Módulos operacionais" },
   { value: "100%", label: "OTIF do turno" },
   { value: "98.4%", label: "Acurácia de picking" },
   { value: "0", label: "Erros não resolvidos" },
@@ -85,14 +85,7 @@ export default function HomePage() {
             <h1 className="text-center text-5xl sm:text-6xl font-bold tracking-tight text-foreground text-balance leading-[1.1] mb-6">
               Gerencie um Centro de{" "}
               <br />
-              <span style={{
-                background: "linear-gradient(135deg, oklch(0.75 0.18 264) 0%, oklch(0.72 0.20 295) 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                Distribuição real.
-              </span>
+              <span>Distribuição real.</span>
             </h1>
 
             {/* Sub */}
@@ -127,7 +120,9 @@ export default function HomePage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
             {stats.map((stat) => (
               <div key={stat.label} className="bg-card px-8 py-7 text-center">
-                <p className="kpi-number text-3xl font-bold text-foreground mb-1">{stat.value}</p>
+                {stat.value ? (
+                  <p className="kpi-number text-3xl font-bold text-foreground mb-1">{stat.value}</p>
+                ) : null}
                 <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
               </div>
             ))}
