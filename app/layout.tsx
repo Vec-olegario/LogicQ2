@@ -1,5 +1,5 @@
 import React from "react"
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: 'LogiQ — Simulador WMS Educacional',
   description: 'Plataforma gamificada de simulação de armazém logístico para aulas práticas. Gerencie recebimento, estoque, picking e expedição.',
   generator: 'v0.app',
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 }
 
 export default function RootLayout({
