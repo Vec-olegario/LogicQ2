@@ -1,0 +1,115 @@
+// ============================================================================
+// LogiQ — Schema do banco de dados (Neon Postgres + Prisma)
+// ============================================================================
+// Contexto: WMS didático onde alunos ocupam "slots" temporários por equipe
+// (sem login tradicional) e operam um fluxo logístico simulado
+// (Recebimento -> Estoque -> Picking -> Expedição).
+// ============================================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Use a connection string com pooling do Neon (contém "-pooler" no host).
+  // Isso é essencial em ambiente serverless (Vercel) para não esgotar
+  // conexões, já que cada função pode abrir sua própria conexão.
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------------------------------------------------------
+// Equipe — a "turma" que usa o sistema. Tabela pai de Slots e Turnos.
+// ----------------------------------------------------------------------------
+model Equipe {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  criadoEm  DateTime @default(now())
+
+  slots  Slot[]
+  turnos Turno[]
+
+  @@map("equipes")
+}
+
+// ----------------------------------------------------------------------------
+// Slot — vaga fixa dentro de uma equipe (ex: "Recebimento", "Picking").
+// Não existe cadastro de usuário: o aluno apenas ocupa um slot já existente
+// e define um nome de exibição. O slot expira sozinho depois de um tempo.
+// ----------------------------------------------------------------------------
+model Slot {
+  id          String    @id @default(cuid())
+  equipeId    String
+  equipe      Equipe    @relation(fields: [equipeId], references: [id], onDelete: Cascade)
+
+  papel       String    // Ex: "Líder", "Recebimento", "Estoque", "Picking", "Expedição"
+  nomeDisplay String?   // Nome digitado pelo aluno ao ocupar o slot
+  ocupado     Boolean   @default(false)
+  ocupadoEm   DateTime?
+  expiraEm    DateTime? // Calculado no momento da ocupação (ocupadoEm + duração)
+
+  // Garante que não existam dois slots com o mesmo papel na mesma equipe.
+  // Também acelera a busca "slot de tal papel nesta equipe".
+  @@unique([equipeId, papel])
+  @@map("slots")
+}
+
+// ----------------------------------------------------------------------------
+// Turno — uma sessão prática ativa de uma equipe. Guarda o placar de
+// acurácia do picking daquela sessão. Sempre deve existir no máximo um
+// turno com ativo=true por equipe (regra aplicada na Server Action, não
+// no schema, já que Prisma não suporta unique parcial nativamente aqui).
+// ----------------------------------------------------------------------------
+model Turno {
+  id             String   @id @default(cuid())
+  equipeId       String
+  equipe         Equipe   @relation(fields: [equipeId], references: [id], onDelete: Cascade)
+
+  ativo          Boolean  @default(true)
+  acertosPicking Int      @default(0)
+  errosPicking   Int      @default(0)
+  iniciadoEm     DateTime @default(now())
+
+  itens Item[]
+
+  // Acelera a busca do "turno ativo" de uma equipe.
+  @@index([equipeId, ativo])
+  @@map("turnos")
+}
+
+// ----------------------------------------------------------------------------
+// StatusItem — enum nativo do Prisma (em vez de string solta) para dar
+// segurança de tipo no TypeScript e evitar valores inválidos no banco.
+// ----------------------------------------------------------------------------
+enum StatusItem {
+  RECEBIDO
+  ESTOCADO
+  SEPARADO
+  EXPEDIDO
+}
+
+// ----------------------------------------------------------------------------
+// Item — a "caixa logística" que percorre o fluxo do armazém dentro de
+// um turno específico. Cada turno tem seu próprio conjunto de itens.
+// ----------------------------------------------------------------------------
+model Item {
+  id          String     @id @default(cuid())
+  turnoId     String
+  turno       Turno      @relation(fields: [turnoId], references: [id], onDelete: Cascade)
+
+  codigo      String     // EAN/SKU
+  descricao   String
+  quantidade  Int
+  fornecedor  String
+  status      StatusItem @default(RECEBIDO)
+  posicao     String?    // Ex: "Rua A, Nível 2" — definida ao endereçar (ESTOCADO)
+  docaSaida   String?    // Definida ao expedir
+
+  criadoEm    DateTime   @default(now())
+
+  // Acelera buscas por código de barras (usadas no picking/bipagem).
+  @@index([codigo])
+  @@map("itens")
+}
