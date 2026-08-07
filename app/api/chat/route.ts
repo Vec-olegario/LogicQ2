@@ -61,18 +61,29 @@ Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a meno
       messages: formattedMessages,
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error('API Chat Error, usando fallback estático:', error);
     
     // Resposta de fallback caso a IA falhe ou não tenha chave API
     const fallbackText = getFallbackResponse(lastUserMessage);
     
-    // Retorna a resposta como texto simples compatível com o useChat do ai@3.1.x
-    return new Response(fallbackText, {
+    // Formata o texto no UI Message Stream Protocol (0:"texto")
+    const streamText = `0:${JSON.stringify(fallbackText)}\n`;
+    
+    // Retorna a resposta como um stream estático compatível com UIMessageStream
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(streamText));
+        controller.close();
+      }
+    });
+
+    return new Response(stream, {
       status: 200,
       headers: { 
-        'Content-Type': 'text/plain; charset=utf-8'
+        'Content-Type': 'text/plain; charset=utf-8',
+        'x-vercel-ai-data-stream': 'v1'
       }
     });
   }
