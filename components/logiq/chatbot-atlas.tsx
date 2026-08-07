@@ -15,7 +15,7 @@ export function ChatbotAtlas() {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, setInput, append, isLoading } = useChat({
+  const { messages, append, isLoading } = useChat({
     initialMessages: [
       {
         id: "1",
@@ -24,6 +24,12 @@ export function ChatbotAtlas() {
       },
     ],
   });
+
+  const [input, setInput] = useState("");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
