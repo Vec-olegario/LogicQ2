@@ -67,9 +67,6 @@ export default function ResizableNavbarDemo() {
 
         <div className="flex items-center gap-3 shrink-0">
           <TeamSelector />
-          <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-primary text-xs font-bold shadow-2xs">
-            P
-          </div>
         </div>
       </NavBody>
 
@@ -117,12 +114,7 @@ export default function ResizableNavbarDemo() {
           </div>
           <div className="w-full pt-4 border-t border-border flex items-center justify-between mt-2">
             <span className="text-sm text-muted-foreground font-medium">Perfil</span>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-foreground">Professor / Aluno</span>
-              <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-sm font-bold">
-                P
-              </div>
-            </div>
+            <span className="text-sm font-semibold text-foreground">Professor / Aluno</span>
           </div>
         </MobileNavMenu>
       </MobileNav>
