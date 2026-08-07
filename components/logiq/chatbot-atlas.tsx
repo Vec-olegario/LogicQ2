@@ -2,8 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, Send, HelpCircle } from "lucide-react";
-// @ts-ignore (Ignorando erro de tipagem caso o ai/react não esteja listado explicitamente, mas ele existe no Vercel AI SDK 3.x)
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 
 const PERGUNTAS_RAPIDAS = [
   "O que é WMS?",
@@ -16,17 +15,23 @@ export function ChatbotAtlas() {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, append, isLoading } = useChat({
-    initialMessages: [
+  const { messages, sendMessage, status } = useChat({
+    messages: [
       {
         id: "1",
         role: "assistant",
-        content: "Olá! Sou o Atlas, seu especialista de suporte em Centro de Distribuição. Como posso te ajudar hoje?",
+        parts: [
+          {
+            type: "text",
+            text: "Olá! Sou o Atlas, seu especialista de suporte em Centro de Distribuição. Como posso te ajudar hoje?",
+          },
+        ],
       },
     ],
   });
 
   const [input, setInput] = useState("");
+  const isLoading = status === "streaming" || status === "submitted";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -41,17 +46,17 @@ export function ChatbotAtlas() {
   }, [messages, isLoading, isOpen]);
 
   const handleSendMessage = (perguntaTexto?: string) => {
-    if (perguntaTexto && append) {
-      append({ role: "user", content: perguntaTexto });
+    if (perguntaTexto && sendMessage) {
+      sendMessage({ text: perguntaTexto });
     }
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const messageText = (input || "").trim();
-    if (!messageText || isLoading || !append) return;
+    if (!messageText || isLoading || !sendMessage) return;
 
-    append({ role: "user", content: messageText });
+    sendMessage({ text: messageText });
     setInput("");
   };
 
@@ -87,22 +92,28 @@ export function ChatbotAtlas() {
 
           {/* Área de Mensagens */}
           <div className="flex-1 p-4 overflow-y-auto bg-muted/20 space-y-4">
-            {messages.map((m: any) => (
-              <div
-                key={m.id}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+            {messages.map((m: any) => {
+              const textContent = m.parts
+                ? m.parts.map((p: any) => (p.type === "text" ? p.text : "")).join("")
+                : m.content || "";
+
+              return (
                 <div
-                  className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                    m.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-xs shadow-sm"
-                      : "bg-card border border-border text-foreground rounded-bl-xs shadow-xs"
-                  }`}
+                  key={m.id}
+                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {m.content}
+                  <div
+                    className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      m.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-xs shadow-sm"
+                        : "bg-card border border-border text-foreground rounded-bl-xs shadow-xs"
+                    }`}
+                  >
+                    {textContent}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {isLoading && (
               <div className="flex justify-start">
