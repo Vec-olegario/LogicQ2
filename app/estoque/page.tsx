@@ -100,7 +100,6 @@ export default function EstoquePage() {
         subtitle="Entenda a teoria e a prática da gestão de armazenamento"
         icon={Package}
         iconColor="text-blue-400"
-        badge="Etapa 02 - Teoria"
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
@@ -112,14 +111,11 @@ export default function EstoquePage() {
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 A aplicação correta das regras operacionais (FIFO e FEFO) garante que produtos perecíveis ou de alta obsolescência girem adequadamente, minimizando desperdício de dinheiro e perdas.
               </p>
-              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-border mt-6">
-                <MapPin size={48} className="text-muted-foreground animate-pulse mb-2" />
-                <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa do Estoque</span>
-                {/* Embed video option */}
+              <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
                 <iframe
-                  className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
-                  src="https://www.youtube.com/embed/invalid_video_id"
-                  title="YouTube video player"
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="Vídeo Explicativo do Estoque"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -155,7 +151,6 @@ export default function EstoquePage() {
       subtitle="Endereçamento de produtos e gestão de armazenagem"
       icon={Package}
       iconColor="text-blue-400"
-      badge="Etapa 02"
     >
       {/* KPIs Reais */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

@@ -75,7 +75,6 @@ export default function ExpedicaoPage() {
         subtitle="Entenda a teoria e a prática do despacho de mercadorias"
         icon={PackageCheck}
         iconColor="text-violet-400"
-        badge="Etapa 04 - Teoria"
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
@@ -87,13 +86,11 @@ export default function ExpedicaoPage() {
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 Uma expedição ágil e precisa garante que a transportadora receba a carga no horário combinado, otimizando o indicador **OTIF (On-Time In-Full)** e a satisfação do cliente final.
               </p>
-              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-border mt-6">
-                <Truck size={48} className="text-muted-foreground animate-pulse mb-2" />
-                <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa da Expedição</span>
+              <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
                 <iframe
-                  className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
-                  src="https://www.youtube.com/embed/invalid_video_id"
-                  title="YouTube video player"
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="Vídeo Explicativo da Expedição"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -123,10 +120,9 @@ export default function ExpedicaoPage() {
   return (
     <PageShell
       title="Expedição"
-      subtitle="Direcionamento de produtos separados para as docas de saída"
+      subtitle="Direcionamento de produtos separados para las docas de saída"
       icon={PackageCheck}
       iconColor="text-violet-400"
-      badge="Etapa 04"
     >
       {/* KPIs Reais */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

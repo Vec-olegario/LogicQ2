@@ -94,7 +94,6 @@ export default function PickingPage() {
         subtitle="Entenda a teoria e a prática da separação de pedidos"
         icon={ScanBarcode}
         iconColor="text-amber-400"
-        badge="Etapa 03 - Teoria"
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
@@ -106,13 +105,11 @@ export default function PickingPage() {
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 O uso de coletores de radiofrequência (RF) ou sistemas guiados por luz (Pick-to-Light) e voz (Voice Picking) garante precisão quase absoluta de bipe, reduzindo significativamente erros de envio.
               </p>
-              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-border mt-6">
-                <ScanBarcode size={48} className="text-muted-foreground animate-pulse mb-2" />
-                <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa do Picking</span>
+              <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
                 <iframe
-                  className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
-                  src="https://www.youtube.com/embed/invalid_video_id"
-                  title="YouTube video player"
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="Vídeo Explicativo do Picking"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -145,7 +142,6 @@ export default function PickingPage() {
       subtitle="Simulador de Coletor RF — bipe o EAN na ordem de armazenagem"
       icon={ScanBarcode}
       iconColor="text-amber-400"
-      badge="Etapa 03"
     >
       {/* KPIs Reais */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">

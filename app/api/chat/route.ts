@@ -1,100 +1,62 @@
-export const maxDuration = 30;
+export const maxDuration = 10; // Reduzido já que não tem chamadas lentas de IA
 
-const FALLBACK_ANSWERS: Record<string, string> = {
-  "wms": "O WMS (Warehouse Management System) é o Sistema de Gerenciamento de Armazém. Ele otimiza estoques, fluxos de recebimento, picking e expedição no Centro de Distribuição.",
-  "5s": "O 5S é uma metodologia de organização baseada em 5 sensos japoneses: Seiri (Utilização), Seiton (Ordenação), Seiso (Limpeza), Seiketsu (Normalização) e Shitsuke (Disciplina).",
-  "fifo": "O FIFO (First-In, First-Out ou PEPS) é o método onde o primeiro produto que entra no estoque é o primeiro a sair. Essencial para evitar a obsolescência ou vencimento de produtos.",
-  "otif": "OTIF (On-Time In-Full) é o principal indicador de entregas logísticas. Mede se os pedidos chegaram no prazo combinado (On-Time) e na quantidade correta e sem avarias (In-Full)."
-};
+// --- BASE DE CONHECIMENTO DO BOT (Regras) ---
+const knowledgeBase = [
+  {
+    keywords: /(wms|warehouse management system)/i,
+    response: "O **WMS (Warehouse Management System)** é o sistema central que gerencia estoque, recebimento, picking e expedição dentro de um Centro de Distribuição. É o cérebro da operação logística!"
+  },
+  {
+    keywords: /(5s|cinco s|organização)/i,
+    response: "O **5S** é uma metodologia de organização e limpeza: \n1. Seiri (Utilização)\n2. Seiton (Organização)\n3. Seiso (Limpeza)\n4. Seiketsu (Padronização)\n5. Shitsuke (Disciplina)"
+  },
+  {
+    keywords: /(fifo|primeiro que entra)/i,
+    response: "**FIFO (First In, First Out)** significa que o primeiro produto a entrar no estoque deve ser o primeiro a sair. É essencial para produtos com data de validade!"
+  },
+  {
+    keywords: /(otif|on time in full)/i,
+    response: "O **OTIF (On-Time In-Full)** é o indicador que mede se um pedido foi entregue no prazo correto (On-Time) e completo, sem faltas ou avarias (In-Full)."
+  },
+  {
+    keywords: /(ola|olá|oi|bom dia|boa tarde|boa noite|eae)/i,
+    response: "Olá! Como posso te ajudar hoje? Posso tirar dúvidas rápidas sobre processos como WMS, 5S, FIFO, ou OTIF."
+  },
+  {
+    keywords: /(opção|opcoes|opções|menu|o que voce sabe|o que você faz|ajuda)/i,
+    response: "Eu sou o Atlas, assistente rápido do LogiQ! Você pode me perguntar o significado de termos como: \n- WMS\n- 5S\n- FIFO\n- OTIF"
+  }
+];
+
+// Resposta padrão (Fallback)
+const defaultResponse = "🤖 Desculpe, não encontrei essa informação na minha base de regras. Sou um assistente automático configurado para termos básicos. Tente me perguntar sobre 'WMS', '5S', 'FIFO' ou 'OTIF'.";
 
 export async function POST(req: Request) {
-  let lastUserMessage = "";
-  
   try {
-    const { messages } = await req.json();
-    lastUserMessage = messages.filter((m: any) => m.role === "user").pop()?.content || "";
-
-    const openRouterKey = process.env.OPENROUTER_API_KEY || '';
-    const groqKey = process.env.GROQ_API_KEY || '';
-    const xaiKey = process.env.XAI_API_KEY || process.env.GROK_API_KEY || '';
-
-    const systemInstruction = `Você é o Atlas, um assistente especializado e simpático de suporte em Centro de Distribuição e WMS (Warehouse Management System).
-Você atua na plataforma educacional LogiQ.
-Seja conciso, direto e utilize formatação markdown quando necessário.
-Ajude os alunos a entender conceitos de logística como 5S, FIFO, LIFO, Curva ABC, OTIF, inventário, picking, expedição e docas.
-Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a menos que o usuário peça muitos detalhes.`;
-
-    const formattedMessages = [
-      { role: "system", content: systemInstruction }
-    ];
-
-    messages
-      .filter((m: any) => m.id !== "1")
-      .forEach((m: any) => {
-        formattedMessages.push({
-          role: m.role,
-          content: m.content
-        });
-      });
-
-    let endpoint = "";
-    let apiKey = "";
-    let modelName = "";
-
-    if (openRouterKey) {
-      // Provedor OpenRouter (IA 100% Gratuita e Sem Erros de Cadastro)
-      endpoint = "https://openrouter.ai/api/v1/chat/completions";
-      apiKey = openRouterKey;
-      modelName = "meta-llama/llama-3.3-70b-instruct:free";
-    } else if (groqKey) {
-      // Provedor Groq
-      endpoint = "https://api.groq.com/openai/v1/chat/completions";
-      apiKey = groqKey;
-      modelName = "llama-3.3-70b-versatile";
-    } else if (xaiKey) {
-      // Provedor xAI (Grok)
-      endpoint = "https://api.x.ai/v1/chat/completions";
-      apiKey = xaiKey;
-      modelName = "grok-2-latest";
-    } else {
-      throw new Error("Nenhuma Chave de API configurada");
-    }
-
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://logiq.vercel.app",
-        "X-Title": "LogiQ Atlas Chatbot"
-      },
-      body: JSON.stringify({
-        model: modelName,
-        messages: formattedMessages,
-        temperature: 0.7,
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`Erro na API (${response.status}): ${errorData}`);
-    }
-
-    const data = await response.json();
-    const responseText = data.choices[0]?.message?.content || "Desculpe, não consegui obter uma resposta válida.";
-
-    return Response.json({ response: responseText });
-  } catch (error) {
-    console.error('API Chat Error:', error);
+    const body = await req.json();
+    const messages = body.messages || [];
     
-    let fallbackText = "🤖 Estou operando em modo offline temporário. Posso te responder perguntas básicas sobre: WMS, 5S, FIFO ou OTIF.";
-    for (const [key, answer] of Object.entries(FALLBACK_ANSWERS)) {
-      if (lastUserMessage.toLowerCase().includes(key)) {
-        fallbackText = answer;
-        break;
+    if (messages.length === 0) {
+      return Response.json({ response: "Nenhuma mensagem recebida." });
+    }
+
+    // Pega a última mensagem (que é a mensagem do usuário)
+    const ultimaMensagem = messages[messages.length - 1];
+    const userText = ultimaMensagem.content;
+
+    // Lógica do Cérebro (Rule-Based)
+    let botReply = defaultResponse;
+    for (let rule of knowledgeBase) {
+      if (rule.keywords.test(userText)) {
+        botReply = rule.response;
+        break; // Para no primeiro match
       }
     }
 
-    return Response.json({ response: fallbackText });
+    return Response.json({ response: botReply });
+    
+  } catch (error) {
+    console.error("Erro na API Chat:", error);
+    return Response.json({ response: "Ocorreu um erro no processamento da mensagem." }, { status: 500 });
   }
 }
