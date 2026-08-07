@@ -2,8 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, Send, HelpCircle, Bot } from "lucide-react";
-// @ts-ignore
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 
 const PERGUNTAS_RAPIDAS = [
   "O que é WMS?",
