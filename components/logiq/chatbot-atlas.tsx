@@ -39,6 +39,21 @@ export function ChatbotAtlas() {
     }
   };
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const messageText = (input || "").trim();
+    if (!messageText || isLoading) return;
+
+    append({
+      role: "user",
+      content: messageText,
+    });
+
+    if (setInput) {
+      setInput("");
+    }
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
       {/* Janela do Chat */}
@@ -79,8 +94,8 @@ export function ChatbotAtlas() {
                 <div
                   className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                     m.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-sm shadow-sm"
-                      : "bg-card border border-border text-foreground rounded-bl-sm shadow-sm"
+                      ? "bg-primary text-primary-foreground rounded-br-xs shadow-sm"
+                      : "bg-card border border-border text-foreground rounded-bl-xs shadow-xs"
                   }`}
                 >
                   {m.content}
@@ -90,13 +105,9 @@ export function ChatbotAtlas() {
             
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] px-4 py-3 rounded-2xl bg-card border border-border text-foreground rounded-bl-sm shadow-sm flex items-center gap-2">
-                  <Bot size={16} className="text-primary animate-pulse" />
-                  <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
+                <div className="bg-card border border-border text-muted-foreground px-4 py-2.5 rounded-2xl rounded-bl-xs text-xs flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-ping" />
+                  Atlas está digitando...
                 </div>
               </div>
             )}
@@ -121,12 +132,12 @@ export function ChatbotAtlas() {
           {/* Input de Texto */}
           <div className="p-3 bg-card border-t border-border flex flex-col gap-2">
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleFormSubmit}
               className="flex gap-2"
             >
               <input
                 type="text"
-                value={input}
+                value={input || ""}
                 onChange={handleInputChange}
                 placeholder="Pergunte ao Atlas..."
                 className="flex-1 bg-background border border-input rounded-xl px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
