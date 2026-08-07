@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { X, Send, HelpCircle, Bot } from "lucide-react";
+import { X, Send, HelpCircle } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 
 const PERGUNTAS_RAPIDAS = [
@@ -15,7 +15,7 @@ export function ChatbotAtlas() {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, append, isLoading } = useChat({
+  const { messages, sendMessage, status } = useChat({
     initialMessages: [
       {
         id: "1",
@@ -26,6 +26,7 @@ export function ChatbotAtlas() {
   });
 
   const [input, setInput] = useState("");
+  const isLoading = status === "streaming" || status === "submitted";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -40,24 +41,18 @@ export function ChatbotAtlas() {
   }, [messages, isLoading, isOpen]);
 
   const handleSendMessage = (perguntaTexto?: string) => {
-    if (perguntaTexto) {
-      append({ role: "user", content: perguntaTexto });
+    if (perguntaTexto && sendMessage) {
+      sendMessage({ text: perguntaTexto });
     }
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const messageText = (input || "").trim();
-    if (!messageText || isLoading) return;
+    if (!messageText || isLoading || !sendMessage) return;
 
-    append({
-      role: "user",
-      content: messageText,
-    });
-
-    if (setInput) {
-      setInput("");
-    }
+    sendMessage({ text: messageText });
+    setInput("");
   };
 
   return (
@@ -92,23 +87,29 @@ export function ChatbotAtlas() {
 
           {/* Área de Mensagens */}
           <div className="flex-1 p-4 overflow-y-auto bg-muted/20 space-y-4">
-            {messages.map((m: { id: string, role: string, content: string }) => (
-              <div
-                key={m.id}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
+            {messages.map((m: any) => {
+              const textContent = m.parts
+                ? m.parts.map((p: any) => (p.type === "text" ? p.text : "")).join("")
+                : m.content || "";
+
+              return (
                 <div
-                  className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                    m.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-xs shadow-sm"
-                      : "bg-card border border-border text-foreground rounded-bl-xs shadow-xs"
-                  }`}
+                  key={m.id}
+                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {m.content}
+                  <div
+                    className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      m.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-xs shadow-sm"
+                        : "bg-card border border-border text-foreground rounded-bl-xs shadow-xs"
+                    }`}
+                  >
+                    {textContent}
+                  </div>
                 </div>
-              </div>
-            ))}
-            
+              );
+            })}
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-card border border-border text-muted-foreground px-4 py-2.5 rounded-2xl rounded-bl-xs text-xs flex items-center gap-2">
@@ -137,23 +138,20 @@ export function ChatbotAtlas() {
 
           {/* Input de Texto */}
           <div className="p-3 bg-card border-t border-border flex flex-col gap-2">
-            <form
-              onSubmit={handleFormSubmit}
-              className="flex gap-2"
-            >
+            <form onSubmit={handleFormSubmit} className="flex gap-2">
               <input
                 type="text"
-                value={input || ""}
+                value={input}
                 onChange={handleInputChange}
                 placeholder="Pergunte ao Atlas..."
                 className="flex-1 bg-background border border-input rounded-xl px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
               />
               <button
                 type="submit"
-                disabled={!(input || "").trim() || isLoading}
+                disabled={!input.trim() || isLoading}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:hover:bg-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-colors cursor-pointer"
               >
-                <Send size={16} className={(input || "").trim() ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
+                <Send size={16} className={input.trim() ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
               </button>
             </form>
             <p className="text-[10px] text-center text-muted-foreground leading-tight px-1">
@@ -167,7 +165,9 @@ export function ChatbotAtlas() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 cursor-pointer ${
-          isOpen ? "bg-muted text-muted-foreground rotate-90" : "bg-primary text-primary-foreground hover:shadow-primary/25 hover:shadow-xl"
+          isOpen
+            ? "bg-muted text-muted-foreground rotate-90"
+            : "bg-primary text-primary-foreground hover:shadow-primary/25 hover:shadow-xl"
         }`}
         aria-label="Abrir assistente IA"
       >
