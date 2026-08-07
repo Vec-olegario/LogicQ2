@@ -221,9 +221,10 @@ export async function validarPicking(
   codigoBipado: string,
 ): Promise<ActionResult<{ acertou: boolean }>> {
   try {
-    // ------- Passo 1: Buscar item + turnoId -------
+    // ------- Passo 1: Buscar item + turno -------
     const item = await prisma.item.findUnique({
       where: { id: itemId },
+      include: { turno: { select: { exigirSkuExato: true } } }
     });
 
     if (!item) {
@@ -242,7 +243,9 @@ export async function validarPicking(
     // Normalização: trim + lowercase para tolerar variações de digitação.
     const esperadoNorm = codigoEsperado.trim().toLowerCase();
     const bipadoNorm = codigoBipado.trim().toLowerCase();
-    const acertou = esperadoNorm === bipadoNorm;
+    
+    // Se a situação de aprendizagem exige SKU exato, comparamos. Senão, assumimos acerto automático.
+    const acertou = item.turno.exigirSkuExato ? (esperadoNorm === bipadoNorm) : true;
 
     // ------- Passo 4: Atualizar item + placar do turno atomicamente -------
     if (acertou) {
@@ -406,13 +409,27 @@ export async function iniciarTurno(
         data: { ativo: false },
       });
 
-      // 2b. Criar novo turno ativo.
+      // 2b. Buscar configuração global (ou usar fallback)
+      const configGlobal = await tx.configuracaoGlobal.findUnique({
+        where: { id: "global" }
+      });
+
+      // 2c. Criar novo turno ativo.
       // `acertosPicking` e `errosPicking` começam em 0 (default do schema),
       // e `iniciadoEm` recebe `now()` automaticamente.
       return tx.turno.create({
         data: {
           equipeId,
           ativo: true,
+          titulo: configGlobal?.titulo ?? "Operação Padrão",
+          contexto: configGlobal?.contexto ?? "Fluxo normal do dia a dia.",
+          exigirSkuExato: configGlobal?.exigirSkuExato ?? true,
+          metaAcuracia: configGlobal?.metaAcuracia ?? 98,
+          metaErros: configGlobal?.metaErros ?? 0,
+          metaItensDesc: configGlobal?.metaItensDesc ?? "Fluxo Contínuo",
+          dificuldade: configGlobal?.dificuldade ?? "Normal",
+          tempoSLA: configGlobal?.tempoSLA ?? 5,
+          metaVolume: configGlobal?.metaVolume ?? 500,
         },
       });
     });
@@ -494,4 +511,82 @@ export async function getTurnoAtivoComItens(
     };
   }
 }
+
+export async function getVisaoGeralVisitante(): Promise<ActionResult<any>> {
+  try {
+    const equipes = await prisma.equipe.findMany({
+      select: {
+        id: true,
+        nome: true,
+        cor: true,
+        usuarios: {
+          select: { id: true }
+        },
+        turnos: {
+          select: {
+            ativo: true,
+            acertosPicking: true,
+            errosPicking: true,
+            itens: {
+              select: { status: true }
+            }
+          }
+        }
+      },
+      orderBy: { nome: "asc" }
+    });
+
+    const dadosMapeados = equipes.map((equipe) => {
+      const usuariosCount = equipe.usuarios.length;
+      const turnosConcluidos = equipe.turnos.filter(t => !t.ativo).length;
+      const turnoAtivo = equipe.turnos.find(t => t.ativo);
+
+      // Calcular acurácia global (todos os turnos)
+      let acertosTotal = 0;
+      let errosTotal = 0;
+      equipe.turnos.forEach(t => {
+        acertosTotal += t.acertosPicking;
+        errosTotal += t.errosPicking;
+      });
+      const totalBipagens = acertosTotal + errosTotal;
+      const acuraciaGeral = totalBipagens > 0 ? (acertosTotal / totalBipagens) * 100 : 100;
+
+      // Progresso do turno ativo
+      let progresso = {
+        recebidos: 0,
+        estocados: 0,
+        separados: 0,
+        expedidos: 0,
+        total: 0
+      };
+
+      if (turnoAtivo) {
+        progresso.total = turnoAtivo.itens.length;
+        turnoAtivo.itens.forEach(item => {
+          if (item.status === "RECEBIDO") progresso.recebidos++;
+          if (item.status === "ESTOCADO") progresso.estocados++;
+          if (item.status === "SEPARADO") progresso.separados++;
+          if (item.status === "EXPEDIDO") progresso.expedidos++;
+        });
+      }
+
+      return {
+        id: equipe.id,
+        nome: equipe.nome,
+        cor: equipe.cor,
+        usuariosCount,
+        turnosConcluidos,
+        acuraciaGeral: Math.round(acuraciaGeral * 10) / 10,
+        progresso,
+        temTurnoAtivo: !!turnoAtivo
+      };
+    });
+
+    return { sucesso: true, dados: dadosMapeados };
+  } catch (erro) {
+    console.error("[getVisaoGeralVisitante] Falha:", erro);
+    return { sucesso: false, erro: "Não foi possível carregar a visão geral." };
+  }
+}
+
 

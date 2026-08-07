@@ -18,6 +18,7 @@ import {
 import { PageShell } from "@/components/logiq/page-shell"
 import { useEquipe } from "@/hooks/use-equipe"
 import { getTurnoAtivoComItens, receberItem } from "@/src/actions/wms"
+import { getConfiguracaoGlobal } from "@/src/actions/configuracao"
 import type { Item } from "@prisma/client"
 
 const conceitosDidaticos = [
@@ -53,6 +54,7 @@ export default function RecebimentoPage() {
   
   // Real DB state
   const [itens, setItens] = useState<Item[]>([])
+  const [itensEsperados, setItensEsperados] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -73,6 +75,12 @@ export default function RecebimentoPage() {
     } else {
       setItens([])
     }
+    
+    const configRes = await getConfiguracaoGlobal()
+    if (configRes.sucesso && configRes.dados) {
+      setItensEsperados(configRes.dados.itensEsperados || [])
+    }
+    
     setLoading(false)
   }
 
@@ -111,6 +119,85 @@ export default function RecebimentoPage() {
 
   const recebidosList = itens.filter((i) => i.status === "RECEBIDO")
   const totalRecebidos = itens.length
+
+  if (isLoaded && !equipeId) {
+    return (
+      <PageShell
+        title="Recebimento (Modo Educativo)"
+        subtitle="Entenda a teoria e a prática da recepção de mercadorias"
+        icon={Truck}
+        iconColor="text-emerald-400"
+        badge="Etapa 01 - Teoria"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-3 space-y-6">
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h2 className="text-xl font-bold mb-4">O Setor de Recebimento</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                O Recebimento é a porta de entrada de qualquer Centro de Distribuição (CD). É o processo responsável por receber fisicamente as mercadorias enviadas pelos fornecedores, conferindo se os itens físicos correspondem exatamente ao que consta na Nota Fiscal Eletrônica (NF-e).
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Uma falha nesta etapa — como aceitar produtos com validade expirada, quantidades incorretas ou itens avariados — propaga o erro por todo o fluxo de estoque e picking, gerando furos graves de inventário.
+              </p>
+              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-border mt-6">
+                <BookOpen size={48} className="text-muted-foreground animate-pulse mb-2" />
+                <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa do Recebimento</span>
+                {/* Embed video option */}
+                <iframe
+                  className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h3 className="font-bold text-base mb-4">Boas Práticas na Doca</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 shrink-0" />
+                  <div>
+                    <strong>Agendamento:</strong> Programar a chegada das transportadoras para evitar filas longas e gargalos nas docas.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 shrink-0" />
+                  <div>
+                    <strong>Conferência Cega:</strong> Contar as caixas sem saber a quantidade exata declarada na NF-e para forçar o conferente a contar de forma precisa.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 shrink-0" />
+                  <div>
+                    <strong>Triagem de Avarias:</strong> Separar produtos danificados imediatamente na entrada para devolver ao transportador no mesmo momento.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <h3 className="font-bold text-lg">Conceitos Chave</h3>
+            {conceitosDidaticos.map((c, i) => {
+              const Icon = c.icon
+              return (
+                <div key={i} className={`p-5 rounded-3xl border ${c.border} ${c.bg} shadow-sm`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon size={16} className={c.color} />
+                    <h4 className="font-bold text-sm text-foreground">{c.titulo}</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{c.conteudo}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </PageShell>
+    )
+  }
 
   return (
     <PageShell
@@ -267,13 +354,47 @@ export default function RecebimentoPage() {
           </div>
         </div>
 
-        {/* Right Column — Conceitos Didáticos (2 cols) */}
-        <div className="col-span-2 space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            <BookOpen size={14} className="text-emerald-600" />
-            <h2 className="text-sm font-bold text-foreground">Conceitos Essenciais de Aprendizagem</h2>
-          </div>
-          <div className="space-y-2">
+        {/* Right Column — Nota Fiscal e Conceitos (2 cols) */}
+        <div className="col-span-2 space-y-6">
+          
+          {/* Nota Fiscal */}
+          {itensEsperados.length > 0 && (
+            <div className="stripe-card rounded-xl p-5 border-border bg-gradient-to-b from-white to-orange-50/30">
+              <div className="flex items-center gap-2 mb-4 border-b border-border pb-3">
+                <FileText size={16} className="text-orange-500" />
+                <h2 className="text-sm font-bold text-foreground">Nota Fiscal Eletrônica (NF-e)</h2>
+              </div>
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                {itensEsperados.map((item, idx) => {
+                  const jaRecebeu = recebidosList.filter(i => i.codigo === item.codigo).reduce((acc, curr) => acc + curr.quantidade, 0)
+                  const concluido = jaRecebeu >= item.quantidade
+                  
+                  return (
+                    <div key={idx} className={`p-2.5 rounded-lg border text-xs ${concluido ? 'bg-emerald-50/50 border-emerald-200 opacity-70' : 'bg-white border-border shadow-sm'}`}>
+                      <div className="flex justify-between items-start mb-1">
+                        <span className={`font-bold ${concluido ? 'text-emerald-700 line-through' : 'text-foreground'}`}>{item.descricao}</span>
+                        <span className="font-bold text-orange-600 bg-orange-50 px-1.5 rounded">{item.quantidade} un.</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground flex justify-between">
+                        <span>SKU: <span className="font-mono">{item.codigo}</span></span>
+                        {concluido && <span className="text-emerald-600 font-bold flex items-center gap-1"><CheckCircle2 size={10} /> Recebido</span>}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-4 text-center">
+                Dica: Confirme as cargas bipando exatamente os SKUs descritos na Nota acima.
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen size={14} className="text-emerald-600" />
+              <h2 className="text-sm font-bold text-foreground">Conceitos Essenciais de Aprendizagem</h2>
+            </div>
+            <div className="space-y-2">
             {conceitosDidaticos.map((c, i) => {
               const Icon = c.icon
               const isOpen = openConceito === i
@@ -300,6 +421,7 @@ export default function RecebimentoPage() {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Action Bar */}
       <div className="mt-8 stripe-card rounded-xl p-4 flex items-center justify-between">

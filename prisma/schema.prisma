@@ -26,10 +26,12 @@ datasource db {
 model Equipe {
   id        String   @id @default(cuid())
   nome      String   @unique
+  cor       String   @default("blue")
   criadoEm  DateTime @default(now())
 
-  slots  Slot[]
-  turnos Turno[]
+  slots    Slot[]
+  turnos   Turno[]
+  usuarios Usuario[] // Adicionado relação com Usuario
 
   @@map("equipes")
 }
@@ -45,15 +47,37 @@ model Slot {
   equipe      Equipe    @relation(fields: [equipeId], references: [id], onDelete: Cascade)
 
   papel       String    // Ex: "Líder", "Recebimento", "Estoque", "Picking", "Expedição"
-  nomeDisplay String?   // Nome digitado pelo aluno ao ocupar o slot
+  nomeDisplay String?   // Nome exibido (agora vindo do Usuario ocupante)
   ocupado     Boolean   @default(false)
   ocupadoEm   DateTime?
   expiraEm    DateTime? // Calculado no momento da ocupação (ocupadoEm + duração)
+  
+  usuarioId   String?   @unique // Um usuário só pode ocupar um slot por vez? Na verdade, se o slot é único por usuário, usamos @unique, mas um slot só tem 1 usuário.
+  usuario     Usuario?  @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
 
   // Garante que não existam dois slots com o mesmo papel na mesma equipe.
   // Também acelera a busca "slot de tal papel nesta equipe".
   @@unique([equipeId, papel])
   @@map("slots")
+}
+
+// ----------------------------------------------------------------------------
+// Usuario — o aluno da turma. A "conta" é atrelada à equipe.
+// ----------------------------------------------------------------------------
+model Usuario {
+  id        String   @id @default(cuid())
+  nome      String
+  isLider   Boolean  @default(false)
+  criadoEm  DateTime @default(now())
+
+  equipeId  String
+  equipe    Equipe   @relation(fields: [equipeId], references: [id], onDelete: Cascade)
+  
+  slotAtual Slot?
+
+  // Não podem existir dois alunos com o mesmo nome na mesma equipe
+  @@unique([equipeId, nome])
+  @@map("usuarios")
 }
 
 // ----------------------------------------------------------------------------
@@ -71,6 +95,17 @@ model Turno {
   acertosPicking Int      @default(0)
   errosPicking   Int      @default(0)
   iniciadoEm     DateTime @default(now())
+
+  // Metas do Turno
+  titulo         String   @default("Operação Padrão")
+  contexto       String   @default("Fluxo normal do dia a dia.")
+  exigirSkuExato Boolean  @default(true)
+  metaAcuracia   Int      @default(98)
+  metaErros      Int      @default(0)
+  metaItensDesc  String   @default("Fluxo Contínuo")
+  dificuldade    String   @default("Normal")
+  tempoSLA       Int      @default(5)
+  metaVolume     Int      @default(500)
 
   itens Item[]
 
@@ -112,4 +147,47 @@ model Item {
   // Acelera buscas por código de barras (usadas no picking/bipagem).
   @@index([codigo])
   @@map("itens")
+}
+
+// ----------------------------------------------------------------------------
+// ConfiguracaoGlobal — Configurações globais para as metas da sala de aula.
+// Utilizada como padrão para novos turnos e para sincronização.
+// ----------------------------------------------------------------------------
+model ConfiguracaoGlobal {
+  id             String   @id @default("global") // Haverá apenas 1 registro com ID "global"
+  
+  titulo         String   @default("Operação Padrão")
+  contexto       String   @default("Fluxo normal do dia a dia.")
+  exigirSkuExato Boolean  @default(true)
+
+  metaAcuracia   Int      @default(98)
+  metaErros      Int      @default(0)
+  metaItensDesc  String   @default("Fluxo Contínuo")
+  dificuldade    String   @default("Normal")
+  tempoSLA       Int      @default(5)
+  metaVolume     Int      @default(500)
+  
+  itensEsperados ItemEsperado[]
+
+  atualizadoEm   DateTime @updatedAt
+  
+  @@map("configuracao_global")
+}
+
+// ----------------------------------------------------------------------------
+// ItemEsperado — a "Nota Fiscal" esperada para a situação de aprendizagem atual
+// ----------------------------------------------------------------------------
+model ItemEsperado {
+  id             String   @id @default(cuid())
+  configuracaoId String
+  configuracao   ConfiguracaoGlobal @relation(fields: [configuracaoId], references: [id], onDelete: Cascade)
+
+  codigo         String     // EAN/SKU
+  descricao      String
+  quantidade     Int
+  fornecedor     String
+
+  criadoEm       DateTime   @default(now())
+
+  @@map("itens_esperados")
 }

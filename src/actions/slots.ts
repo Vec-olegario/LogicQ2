@@ -64,6 +64,7 @@ export async function getSlotsDaEquipe(
       data: {
         ocupado: false,
         nomeDisplay: null,
+        usuarioId: null,
         ocupadoEm: null,
         expiraEm: null,
       },
@@ -113,24 +114,27 @@ export async function getSlotsDaEquipe(
 
 import { z } from "zod";
 
-const OcuparSlotSchema = z.object({
-  slotId: z.string().min(1, "O ID do slot é obrigatório."),
-  nome: z.string().trim()
-    .min(1, "O nome de exibição não pode ser vazio.")
-    .max(50, "O nome de exibição deve ter no máximo 50 caracteres."),
-});
-
 export async function ocuparSlot(
   slotId: string,
-  nome: string,
+  usuarioId: string,
 ): Promise<ActionResult<{ slotId: string }>> {
   try {
     // Validação com Zod
-    const parsed = OcuparSlotSchema.safeParse({ slotId, nome });
+    const OcuparSlotSchema = z.object({
+      slotId: z.string().min(1, "O ID do slot é obrigatório."),
+      usuarioId: z.string().min(1, "O ID do usuário é obrigatório."),
+    });
+
+    const parsed = OcuparSlotSchema.safeParse({ slotId, usuarioId });
     if (!parsed.success) {
       return { sucesso: false, erro: parsed.error.issues[0].message };
     }
-    const { slotId: idValido, nome: nomeLimpo } = parsed.data;
+    const { slotId: idValido, usuarioId: uid } = parsed.data;
+
+    const usuario = await prisma.usuario.findUnique({ where: { id: uid } });
+    if (!usuario) {
+      return { sucesso: false, erro: "Usuário inválido ou não encontrado." };
+    }
 
     const agora = new Date();
 
@@ -145,18 +149,57 @@ export async function ocuparSlot(
         nomeDisplay: null,
         ocupadoEm: null,
         expiraEm: null,
+        usuarioId: null,
       },
     });
 
+    // ------- NOVO Passo 1.5: Liberar o usuário de seu slot anterior (se houver) -------
+    await prisma.slot.updateMany({
+      where: { usuarioId: uid },
+      data: {
+        ocupado: false,
+        nomeDisplay: null,
+        ocupadoEm: null,
+        expiraEm: null,
+        usuarioId: null,
+      }
+    });
+
     // ------- Passo 2: Tentativa atômica de ocupação -------
+    // Atenção: A inserção pode falhar se usarmos apenas updateMany se a linha
+    // não existir (embora updateMany não lance erro, o count será 0).
+    // O ideal aqui é upsert porque precisamos criar a linha caso o slot (como "Estoque")
+    // ainda não exista no banco (pois o banco cria os slots lazily).
+    // Mas upsert exige um 'where' único (como id). Vamos pegar o slot do banco para saber
+    // se existe ou se usaremos upsert no `equipeId_papel`.
+    // Porém a signature original de `ocuparSlot` só recebe `slotId`.
+    // Se o frontend envia 'temp-Estoque', `idValido` não existe no banco!
+    
+    // Tratativa para lazy creation de slots (quando idValido começa com "temp-")
+    let targetSlotId = idValido;
+    let papel = "Membro";
+    let equipeId = usuario.equipeId;
+
+    if (idValido.startsWith("temp-")) {
+      papel = idValido.replace("temp-", "");
+      // Precisamos garantir que esse slot seja criado
+      const novoSlot = await prisma.slot.upsert({
+        where: { equipeId_papel: { equipeId: usuario.equipeId, papel } },
+        update: {},
+        create: { equipeId: usuario.equipeId, papel, ocupado: false }
+      });
+      targetSlotId = novoSlot.id;
+    }
+
     const resultado = await prisma.slot.updateMany({
       where: {
-        id: idValido,
+        id: targetSlotId,
         ocupado: false, // ← Lock otimista: só casa se ninguém ocupou antes.
       },
       data: {
         ocupado: true,
-        nomeDisplay: nomeLimpo,
+        nomeDisplay: usuario.nome,
+        usuarioId: usuario.id,
         ocupadoEm: agora,
         expiraEm: new Date(agora.getTime() + DURACAO_SLOT_MS),
       },
@@ -208,22 +251,27 @@ export async function resetarEquipe(
   senhaAdmin: string,
 ): Promise<ActionResult<{ mensagem: string }>> {
   try {
-    // ------- Passo 1: Validar senha de admin -------
-    const senhaCorreta = process.env.ADMIN_PASSWORD;
+    // ------- Passo 1: Validar permissão -------
+    // Quem pode resetar? Ou o Instrutor com a senha Admin, ou o Líder da equipe (sem senha).
+    // Para simplificar, esta action aceita `senhaAdmin` que pode ser o token do admin,
+    // ou se `senhaAdmin` for igual ao `usuarioId` do Líder, verificaremos isso.
+    const senhaCorreta = process.env.ADMIN_PASSWORD || "instrutor-adm";
 
-    if (!senhaCorreta) {
-      // Falha de configuração do servidor — não expor detalhes ao client.
-      console.error(
-        "[resetarEquipe] ADMIN_PASSWORD não definida nas variáveis de ambiente.",
-      );
-      return {
-        sucesso: false,
-        erro: "Erro de configuração do servidor. Contate o administrador.",
-      };
+    let autorizado = false;
+    if (senhaAdmin === senhaCorreta) {
+      autorizado = true;
+    } else {
+      // Verifica se a senha enviada é na verdade o ID do usuário Líder
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: senhaAdmin }
+      });
+      if (usuario && usuario.equipeId === equipeId && usuario.isLider) {
+        autorizado = true;
+      }
     }
 
-    if (senhaAdmin !== senhaCorreta) {
-      return { sucesso: false, erro: "Senha de administrador incorreta." };
+    if (!autorizado) {
+      return { sucesso: false, erro: "Credenciais inválidas ou você não é o líder da equipe." };
     }
 
     // ------- Passo 2: Verificar se a equipe existe -------
@@ -239,21 +287,18 @@ export async function resetarEquipe(
     // ------- Passo 3: Transação atômica — reset completo -------
     await prisma.$transaction([
       // 3a. Limpar todos os slots da equipe (ignorando expiraEm).
-      // Usamos updateMany em vez de deleteMany porque os slots são "vagas
-      // fixas" da equipe — não queremos removê-los, apenas desocupá-los.
       prisma.slot.updateMany({
         where: { equipeId },
         data: {
           ocupado: false,
           nomeDisplay: null,
+          usuarioId: null,
           ocupadoEm: null,
           expiraEm: null,
         },
       }),
 
       // 3b. Deletar todos os turnos da equipe.
-      // Os itens de cada turno serão deletados automaticamente pelo
-      // `onDelete: Cascade` definido na relação Turno → Item no schema.
       prisma.turno.deleteMany({
         where: { equipeId },
       }),

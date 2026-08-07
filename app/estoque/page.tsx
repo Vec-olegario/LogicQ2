@@ -93,6 +93,62 @@ export default function EstoquePage() {
   const pendentesEnderecar = itens.filter((i) => i.status === "RECEBIDO")
   const estocados = itens.filter((i) => i.status === "ESTOCADO")
 
+  if (isLoaded && !equipeId) {
+    return (
+      <PageShell
+        title="Estoque (Modo Educativo)"
+        subtitle="Entenda a teoria e a prática da gestão de armazenamento"
+        icon={Package}
+        iconColor="text-blue-400"
+        badge="Etapa 02 - Teoria"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-3 space-y-6">
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h2 className="text-xl font-bold mb-4">O Setor de Estoque e Armazenagem</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                O Estoque é o coração de qualquer Centro de Distribuição. É o responsável por planejar e alocar os produtos nos endereços (rua, nível e coluna) corretos. Um bom armazenamento maximiza a utilização do espaço vertical e facilita o trabalho do picking.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                A aplicação correta das regras operacionais (FIFO e FEFO) garante que produtos perecíveis ou de alta obsolescência girem adequadamente, minimizando desperdício de dinheiro e perdas.
+              </p>
+              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-border mt-6">
+                <MapPin size={48} className="text-muted-foreground animate-pulse mb-2" />
+                <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa do Estoque</span>
+                {/* Embed video option */}
+                <iframe
+                  className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <h3 className="font-bold text-lg">Regras de Giro de Estoque</h3>
+            {regrasNegocio.map((r, i) => {
+              const Icon = r.icon
+              return (
+                <div key={i} className={`p-5 rounded-3xl border ${r.border} ${r.bg} shadow-sm`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon size={16} className={r.color} />
+                    <h4 className="font-bold text-sm text-foreground">{r.sigla} - {r.nome}</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-2">{r.descricao}</p>
+                  <p className="text-[10px] font-bold text-foreground">Exemplo: {r.exemplo}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </PageShell>
+    )
+  }
+
   return (
     <PageShell
       title="Estoque"

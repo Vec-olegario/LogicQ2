@@ -68,6 +68,58 @@ export default function ExpedicaoPage() {
   const separados = itens.filter((i) => i.status === "SEPARADO")
   const expedidos = itens.filter((i) => i.status === "EXPEDIDO")
 
+  if (isLoaded && !equipeId) {
+    return (
+      <PageShell
+        title="Expedição (Modo Educativo)"
+        subtitle="Entenda a teoria e a prática do despacho de mercadorias"
+        icon={PackageCheck}
+        iconColor="text-violet-400"
+        badge="Etapa 04 - Teoria"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-3 space-y-6">
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h2 className="text-xl font-bold mb-4">O Setor de Expedição</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                A Expedição é a etapa final do ciclo interno de um armazém. É responsável por receber os produtos separados pelo picking, consolidar os pedidos, verificar se as notas fiscais estão coladas corretamente nas embalagens, e direcionar a carga para a doca de saída correta.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Uma expedição ágil e precisa garante que a transportadora receba a carga no horário combinado, otimizando o indicador **OTIF (On-Time In-Full)** e a satisfação do cliente final.
+              </p>
+              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-border mt-6">
+                <Truck size={48} className="text-muted-foreground animate-pulse mb-2" />
+                <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa da Expedição</span>
+                <iframe
+                  className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <div className="p-5 rounded-3xl border border-violet-200 bg-violet-50 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <PackageCheck size={16} className="text-violet-600" />
+                <h4 className="font-bold text-sm text-foreground">Metas e KPIs da Expedição</h4>
+              </div>
+              <ul className="space-y-3 text-xs text-muted-foreground">
+                <li><strong>OTIF (On-Time In-Full):</strong> O indicador mais importante. Mede a porcentagem de entregas feitas no prazo contratado e com a quantidade/qualidade corretas.</li>
+                <li><strong>Tempo de Ciclo (Order Cycle Time):</strong> Tempo total desde a entrada do pedido no sistema até a saída física do caminhão.</li>
+                <li><strong>Acurácia de Expedição:</strong> Verificação contra erros de envio de produtos trocados para clientes.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </PageShell>
+    )
+  }
+
   return (
     <PageShell
       title="Expedição"

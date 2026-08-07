@@ -2,6 +2,8 @@ import React from "react"
 import type { Metadata } from 'next'
 import { Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+import { SmoothScroll } from "@/components/smooth-scroll"
+import { ChatbotAtlas } from "@/components/logiq/chatbot-atlas"
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
@@ -29,7 +31,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="bg-background">
       <body className={`${instrumentSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        {children}
+        <SmoothScroll>
+          {children}
+          <ChatbotAtlas />
+        </SmoothScroll>
       </body>
     </html>
   )

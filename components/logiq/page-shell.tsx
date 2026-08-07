@@ -23,7 +23,7 @@ export function PageShell({
   return (
     <div className="min-h-screen bg-background">
       <Topbar />
-      <div className="pt-14">
+      <div className="pt-20">
         <div className="max-w-[1280px] mx-auto px-6 py-8">
 
           {/* Page Header */}

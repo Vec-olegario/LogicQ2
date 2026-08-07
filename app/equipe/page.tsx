@@ -16,17 +16,25 @@ import {
   ShieldAlert,
   Lock,
   AlertCircle,
-  Clock
+  Clock,
+  Loader2,
+  Target,
+  AlertTriangle,
+  TrendingUp,
+  Globe,
+  Gauge
 } from "lucide-react"
 import { Topbar } from "@/components/logiq/topbar"
 import { getSlotsDaEquipe, ocuparSlot, resetarEquipe } from "@/src/actions/slots"
-import { iniciarTurno } from "@/src/actions/wms"
+import { iniciarTurno, getTurnoAtivoComItens } from "@/src/actions/wms"
+import { passarLideranca, expulsarMembro } from "@/src/actions/auth"
 import { useEquipe } from "@/hooks/use-equipe"
 
 interface SlotData {
   id: string;
   papel: string;
   nomeDisplay: string | null;
+  usuarioId: string | null;
   ocupado: boolean;
   ocupadoEm: Date | null;
   expiraEm: Date | null;
@@ -106,18 +114,14 @@ const papeis = [
 ]
 
 export default function EquipePage() {
-  const { equipeId, isLoaded } = useEquipe()
+  const { equipeId, equipeNome, usuarioId, isLider, isLoaded } = useEquipe()
   const [slots, setSlots] = useState<SlotData[]>([])
   const [loading, setLoading] = useState(true)
   const [erroMsg, setErroMsg] = useState<string | null>(null)
   const [sucessoMsg, setSucessoMsg] = useState<string | null>(null)
 
   const [papelAberto, setPapelAberto] = useState<string | null>(null)
-  const [nomeInput, setNomeInput] = useState("")
   
-  const [resetModalOpen, setResetModalOpen] = useState(false)
-  const [senhaAdmin, setSenhaAdmin] = useState("")
-
   const [isPending, startTransition] = useTransition()
 
   const carregarSlots = async () => {
@@ -146,22 +150,56 @@ export default function EquipePage() {
 
   function togglePapel(papelId: string) {
     setPapelAberto(papelAberto === papelId ? null : papelId)
-    setNomeInput("")
   }
 
   const handleOcupar = async (papelId: string) => {
-    const nome = nomeInput.trim()
-    if (!nome) return
+    if (!usuarioId) return;
 
     const slotCadastrado = slots.find((s) => s.papel === papelId)
     const slotId = slotCadastrado ? slotCadastrado.id : `temp-${papelId}`
 
     setErroMsg(null)
     startTransition(async () => {
-      const res = await ocuparSlot(slotId, nome)
+      const res = await ocuparSlot(slotId, usuarioId)
       if (res.sucesso) {
-        setSucessoMsg(`Vaga ocupada com sucesso por ${nome}!`)
-        setNomeInput("")
+        setSucessoMsg(`Vaga ocupada com sucesso!`)
+        carregarSlots()
+        setTimeout(() => setSucessoMsg(null), 4000)
+      } else {
+        setErroMsg(res.erro)
+      }
+    })
+  }
+
+  const handlePassarLideranca = async (alvoId: string) => {
+    if (!usuarioId) return;
+    if (!confirm("Tem certeza que deseja passar a liderança? Você perderá os controles da equipe.")) return;
+
+    setErroMsg(null)
+    startTransition(async () => {
+      const res = await passarLideranca(usuarioId, alvoId)
+      if (res.sucesso) {
+        setSucessoMsg("Liderança transferida com sucesso! Você não é mais o líder.")
+        carregarSlots()
+        setTimeout(() => {
+          setSucessoMsg(null)
+          window.location.reload()
+        }, 2000)
+      } else {
+        setErroMsg(res.erro)
+      }
+    })
+  }
+
+  const handleExpulsar = async (alvoId: string) => {
+    if (!usuarioId) return;
+    if (!confirm("Tem certeza que deseja expulsar este membro da equipe?")) return;
+
+    setErroMsg(null)
+    startTransition(async () => {
+      const res = await expulsarMembro(usuarioId, alvoId)
+      if (res.sucesso) {
+        setSucessoMsg("Membro expulso com sucesso!")
         carregarSlots()
         setTimeout(() => setSucessoMsg(null), 4000)
       } else {
@@ -171,6 +209,7 @@ export default function EquipePage() {
   }
 
   const handleIniciarTurno = async () => {
+    if (!equipeId) return
     setErroMsg(null)
     startTransition(async () => {
       const res = await iniciarTurno(equipeId)
@@ -183,15 +222,15 @@ export default function EquipePage() {
     })
   }
 
-  const handleResetEquipe = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleResetLider = async () => {
+    if (!usuarioId || !equipeId) return;
+    if (!confirm("Tem certeza que deseja resetar todas as vagas e turnos? Isso apagará o histórico atual da sua equipe.")) return;
+
     setErroMsg(null)
     startTransition(async () => {
-      const res = await resetarEquipe(equipeId, senhaAdmin)
+      const res = await resetarEquipe(equipeId, usuarioId)
       if (res.sucesso) {
         setSucessoMsg(res.dados.mensagem)
-        setResetModalOpen(false)
-        setSenhaAdmin("")
         carregarSlots()
         setTimeout(() => setSucessoMsg(null), 4000)
       } else {
@@ -216,9 +255,16 @@ export default function EquipePage() {
             <Users size={32} className="text-muted-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight mb-2">Nenhuma Equipe Selecionada</h1>
-          <p className="text-muted-foreground max-w-sm leading-relaxed">
-            Use o menu "Acessar Equipe" no canto superior direito para entrar no ambiente da sua turma.
+          <p className="text-muted-foreground max-w-sm leading-relaxed mb-8">
+            Você não está alocado em nenhuma equipe atualmente. Acesse o LogiQ para continuar.
           </p>
+          <a
+            href="/login"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            Fazer Login na Equipe
+            <ArrowRight size={16} />
+          </a>
         </div>
       </div>
     )
@@ -269,15 +315,18 @@ export default function EquipePage() {
                       className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition-all disabled:opacity-50 text-xs cursor-pointer"
                     >
                       <Play size={13} className="fill-current" />
-                      Iniciar Novo Turno
+                      Novo Turno
                     </button>
-                    <button
-                      onClick={() => setResetModalOpen(true)}
-                      className="flex items-center gap-2 bg-muted hover:bg-muted/80 text-foreground font-bold px-4 py-2 rounded-xl border border-border transition-all text-xs cursor-pointer"
-                    >
-                      <RotateCcw size={13} className="text-muted-foreground" />
-                      Reset Admin
-                    </button>
+                    {isLider && (
+                      <button
+                        onClick={handleResetLider}
+                        disabled={isPending}
+                        className="flex items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 py-2 rounded-xl border border-red-200 transition-all text-xs cursor-pointer"
+                      >
+                        <RotateCcw size={13} />
+                        Resetar Equipe
+                      </button>
+                    )}
                   </div>
                   
                   <div className="w-px h-8 bg-border hidden md:block" />
@@ -342,11 +391,17 @@ export default function EquipePage() {
                       {/* Status */}
                       <div className="flex items-center gap-4 shrink-0">
                         {ocupado ? (
-                           <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
+                           <div className={`flex items-center gap-2 border px-3 py-1.5 rounded-xl ${
+                             slotCadastrado?.usuarioId === usuarioId 
+                              ? "bg-primary/10 border-primary/20" 
+                              : "bg-emerald-50 border-emerald-200"
+                           }`}>
                              <div className={`w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm`}>
-                               <span className={`text-[10px] font-bold text-emerald-600`}>{nomeAluno?.[0] || 'U'}</span>
+                               <span className={`text-[10px] font-bold ${slotCadastrado?.usuarioId === usuarioId ? "text-primary" : "text-emerald-600"}`}>{nomeAluno?.[0] || 'U'}</span>
                              </div>
-                             <span className="text-xs font-bold text-emerald-700">{nomeAluno}</span>
+                             <span className={`text-xs font-bold ${slotCadastrado?.usuarioId === usuarioId ? "text-primary" : "text-emerald-700"}`}>
+                               {slotCadastrado?.usuarioId === usuarioId ? "Você" : nomeAluno}
+                             </span>
                            </div>
                         ) : (
                            <span className="text-xs font-semibold text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-xl border border-border">Livre</span>
@@ -376,34 +431,47 @@ export default function EquipePage() {
                           {/* Adicionar aluno */}
                           <div className="md:col-span-2">
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                              Ocupar Vaga
+                              Status da Vaga
                             </p>
 
                             {!isCheio ? (
-                              <div className="flex gap-2 mb-3">
-                                <input
-                                  value={nomeInput}
-                                  onChange={(e) => setNomeInput(e.target.value)}
-                                  onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) handleOcupar(papel.id) }}
-                                  placeholder="Seu nome..."
-                                  disabled={isPending}
-                                  className="flex-1 bg-white border border-border rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-300 disabled:opacity-50"
-                                />
-                                <button
-                                  onClick={() => handleOcupar(papel.id)}
-                                  disabled={!nomeInput.trim() || isPending}
-                                  className={`px-3 py-2 rounded-xl text-xs font-bold text-white disabled:opacity-40 transition-colors ${papel.bgSolid} hover:opacity-90 flex items-center justify-center cursor-pointer`}
-                                >
-                                  {isPending ? "..." : "+"}
-                                </button>
-                              </div>
+                              <button
+                                onClick={() => handleOcupar(papel.id)}
+                                disabled={isPending}
+                                className={`w-full py-2.5 rounded-xl text-xs font-bold text-white disabled:opacity-40 transition-colors ${papel.bgSolid} hover:opacity-90 flex items-center justify-center cursor-pointer shadow-sm`}
+                              >
+                                {isPending ? <Loader2 size={14} className="animate-spin" /> : "Ocupar Vaga"}
+                              </button>
                             ) : (
-                              <div className={`text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl flex flex-col gap-1`}>
-                                <div className="flex items-center gap-1.5 font-bold">
-                                  <CheckCircle2 size={12} />
-                                  Vaga ocupada
+                              <div className={`text-xs font-medium bg-muted/50 border border-border px-4 py-3 rounded-xl flex flex-col gap-2`}>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1.5 font-bold text-foreground">
+                                    <CheckCircle2 size={12} className="text-emerald-500" />
+                                    Vaga ocupada por {nomeAluno}
+                                  </div>
                                 </div>
-                                <span className="text-[10px] opacity-80 flex items-center gap-1"><Clock size={10} /> Expira em 4h</span>
+                                <span className="text-[10px] opacity-80 flex items-center gap-1 text-muted-foreground">
+                                  <Clock size={10} /> Expira em 4h
+                                </span>
+                                
+                                {isLider && slotCadastrado?.usuarioId !== usuarioId && slotCadastrado?.usuarioId && (
+                                  <div className="mt-2 pt-2 border-t border-border flex flex-col gap-1.5">
+                                    <button 
+                                      onClick={() => handlePassarLideranca(slotCadastrado.usuarioId!)}
+                                      disabled={isPending}
+                                      className="text-[10px] font-bold text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 py-1.5 rounded-lg transition-colors text-center w-full"
+                                    >
+                                      Promover a Líder
+                                    </button>
+                                    <button 
+                                      onClick={() => handleExpulsar(slotCadastrado.usuarioId!)}
+                                      disabled={isPending}
+                                      className="text-[10px] font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 py-1.5 rounded-lg transition-colors text-center w-full"
+                                    >
+                                      Expulsar Membro
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -417,7 +485,7 @@ export default function EquipePage() {
           )}
 
           {/* CTA */}
-          <div className="mt-6 glass rounded-2xl p-4 shadow-sm border border-border flex items-center justify-between">
+          <div className="mt-6 glass rounded-2xl p-4 shadow-sm border border-border flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <Users size={15} className="text-teal-600" />
               <span className="text-sm font-medium text-foreground">
@@ -430,66 +498,151 @@ export default function EquipePage() {
                 />
               </div>
             </div>
-            <a href="/dashboard-turno" className="flex items-center gap-2 text-xs font-bold text-foreground hover:text-primary transition-colors">
+            <a href="/dashboard" className="flex items-center gap-2 text-xs font-bold text-foreground hover:text-primary transition-colors">
               Ver Dashboard do Turno <ArrowRight size={12} />
             </a>
           </div>
 
+          <TurnoSituacaoReadOnly equipeId={equipeId} />
+
         </div>
       </div>
 
-      {/* Modal Reset Admin */}
-      {resetModalOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-background border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center">
-                <ShieldAlert size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-foreground tracking-tight">Reset de Equipe</h3>
-                <p className="text-xs text-muted-foreground">Liberar todas as vagas e apagar histórico</p>
-              </div>
-            </div>
+    </div>
+  )
+}
 
-            <form onSubmit={handleResetEquipe} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-2">
-                  Senha Admin
-                </label>
-                <div className="relative">
-                  <input
-                    type="password"
-                    required
-                    value={senhaAdmin}
-                    onChange={(e) => setSenhaAdmin(e.target.value)}
-                    placeholder="Digite a senha..."
-                    className="w-full bg-white border border-border rounded-2xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <Lock size={14} className="text-muted-foreground absolute left-3 top-3" />
+function TurnoSituacaoReadOnly({ equipeId }: { equipeId: string }) {
+  const [turno, setTurno] = useState<any | null>(null)
+  const [itens, setItens] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function carregar() {
+      setLoading(true)
+      const res = await getTurnoAtivoComItens(equipeId)
+      if (res.sucesso && res.dados) {
+        setTurno(res.dados.turno)
+        setItens(res.dados.turno?.itens ?? [])
+      }
+      setLoading(false)
+    }
+    carregar()
+  }, [equipeId])
+
+  if (loading) {
+    return (
+      <div className="py-12 flex justify-center text-muted-foreground">
+        <Loader2 size={24} className="animate-spin" />
+      </div>
+    )
+  }
+
+  if (!turno) {
+    return null
+  }
+
+  const acertos = turno.acertosPicking ?? 0
+  const erros = turno.errosPicking ?? 0
+  const totalBipes = acertos + erros
+  const acuracia = totalBipes === 0 ? 100 : Math.round((acertos / totalBipes) * 1000) / 10
+
+  const metaAcuracia = turno.metaAcuracia ?? 98
+  const metaErros = turno.metaErros ?? 0
+  const metaItensDesc = turno.metaItensDesc ?? "Fluxo Contínuo"
+
+  const metasTurno = [
+    {
+      kpi: "Acurácia de Picking",
+      meta: `≥ ${metaAcuracia}%`,
+      atual: `${acuracia}%`,
+      status: acuracia >= metaAcuracia ? "atingido" : "alerta",
+      descricao: "Taxa mínima de acertos na hora de bipar os produtos.",
+      icon: Target,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+      border: "border-emerald-200",
+    },
+    {
+      kpi: "Erros no Picking",
+      meta: `${metaErros} erros max`,
+      atual: `${erros} erros`,
+      status: erros <= metaErros ? "atingido" : "alerta",
+      descricao: "Número máximo de bipes errados no coletor.",
+      icon: erros <= metaErros ? CheckCircle2 : AlertTriangle,
+      color: erros <= metaErros ? "text-emerald-600" : "text-amber-600",
+      bg: erros <= metaErros ? "bg-emerald-50" : "bg-amber-50",
+      border: erros <= metaErros ? "border-emerald-200" : "border-amber-200",
+    },
+    {
+      kpi: "Dificuldade",
+      meta: turno.dificuldade ?? "Normal",
+      atual: turno.dificuldade ?? "Normal",
+      status: "atingido",
+      descricao: "Dificuldade geral da simulação.",
+      icon: Globe,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+    },
+    {
+      kpi: "Tempo SLA",
+      meta: `${turno.tempoSLA ?? 5} min`,
+      atual: "---", // Fictício por enquanto, será calculado com pedidos no futuro
+      status: "atingido",
+      descricao: "Tempo máximo para liberar um pedido.",
+      icon: Clock,
+      color: "text-rose-600",
+      bg: "bg-rose-50",
+      border: "border-rose-200",
+    },
+    {
+      kpi: "Volume (Caixas)",
+      meta: `${turno.metaVolume ?? 500} un`,
+      atual: `${itens.length} un`,
+      status: itens.length >= (turno.metaVolume ?? 500) ? "atingido" : "alerta",
+      descricao: "Quantas caixas vocês precisam fazer até o fim da aula.",
+      icon: PackageCheck,
+      color: "text-violet-600",
+      bg: "bg-violet-50",
+      border: "border-violet-200",
+    },
+  ]
+
+  return (
+    <div className="mt-10">
+      <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+        <Target size={18} className="text-violet-500" /> Situação das Metas (Turno Ativo)
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {metasTurno.map((meta) => {
+          const Icon = meta.icon
+          return (
+            <div key={meta.kpi} className={`glass rounded-xl p-5 border ${meta.border} shadow-sm`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-8 h-8 rounded-lg ${meta.bg} ${meta.color} flex items-center justify-center`}>
+                  <Icon size={16} />
                 </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setResetModalOpen(false)}
-                  className="flex-1 bg-muted hover:bg-muted/80 text-foreground font-bold py-2.5 rounded-2xl text-xs transition-colors cursor-pointer"
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    meta.status === "atingido"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-amber-100 text-amber-700"
+                  }`}
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-2xl text-xs shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {isPending ? "Executando..." : "Confirmar Reset"}
-                </button>
+                  {meta.status}
+                </span>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+              <h3 className="text-sm font-bold text-foreground mb-1">{meta.kpi}</h3>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-2xl font-bold text-foreground kpi-number">{meta.atual}</span>
+                <span className="text-xs text-muted-foreground">(Meta: {meta.meta})</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">{meta.descricao}</p>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -87,6 +87,58 @@ export default function PickingPage() {
     inputRef.current?.focus()
   }
 
+  if (isLoaded && !equipeId) {
+    return (
+      <PageShell
+        title="Picking (Modo Educativo)"
+        subtitle="Entenda a teoria e a prática da separação de pedidos"
+        icon={ScanBarcode}
+        iconColor="text-amber-400"
+        badge="Etapa 03 - Teoria"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-3 space-y-6">
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h2 className="text-xl font-bold mb-4">O Setor de Picking (Separação)</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                O Picking consiste na separação física dos produtos armazenados para atender aos pedidos dos clientes. É a etapa mais cara e que consome mais tempo em um CD, sendo crucial otimizar a rota de separação para minimizar deslocamentos desnecessários dos operadores.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                O uso de coletores de radiofrequência (RF) ou sistemas guiados por luz (Pick-to-Light) e voz (Voice Picking) garante precisão quase absoluta de bipe, reduzindo significativamente erros de envio.
+              </p>
+              <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-border mt-6">
+                <ScanBarcode size={48} className="text-muted-foreground animate-pulse mb-2" />
+                <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa do Picking</span>
+                <iframe
+                  className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <div className="p-5 rounded-3xl border border-amber-200 bg-amber-50 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Zap size={16} className="text-amber-600" />
+                <h4 className="font-bold text-sm text-foreground">Metodologias de Picking</h4>
+              </div>
+              <ul className="space-y-3 text-xs text-muted-foreground">
+                <li><strong>Picking por Onda (Wave):</strong> Agrupamento de pedidos por rotas de entrega ou transportadoras, liberados em intervalos ao longo do turno.</li>
+                <li><strong>Picking por Zona (Zone):</strong> O CD é dividido em zonas e cada operador separa apenas os itens de sua zona, similar a uma linha de montagem.</li>
+                <li><strong>Picking Discreto:</strong> Um operador separa um único pedido por vez, do início ao fim (mais simples, porém menos produtivo em larga escala).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </PageShell>
+    )
+  }
+
   return (
     <PageShell
       title="Picking (Separação)"

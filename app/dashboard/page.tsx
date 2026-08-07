@@ -17,6 +17,7 @@ import {
   Activity,
   BarChart3,
   Loader2,
+  BookOpen,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { useEquipe } from "@/hooks/use-equipe"
@@ -79,7 +80,7 @@ export default function DashboardPage() {
 
   if (!isLoaded || loading) {
     return (
-      <PageShell title="Dashboard" subtitle="Visão geral do turno em andamento">
+      <PageShell title="Dashboard" subtitle="Monitore os KPIs e a performance do turno atual.">
         <div className="py-20 flex justify-center text-muted-foreground">
           <Loader2 size={32} className="animate-spin" />
         </div>
@@ -89,7 +90,7 @@ export default function DashboardPage() {
 
   if (!equipeId) {
     return (
-      <PageShell title="Dashboard" subtitle="Visão geral do turno em andamento">
+      <PageShell title="Dashboard" subtitle="Monitore os KPIs e a performance do turno atual.">
         <div className="py-20 text-center">
           <BarChart3 size={36} className="mx-auto text-muted-foreground mb-4 opacity-50" />
           <h2 className="text-lg font-bold text-foreground mb-1">Nenhuma Equipe Selecionada</h2>
@@ -123,8 +124,26 @@ export default function DashboardPage() {
   return (
     <PageShell
       title={`Dashboard — ${equipeNome}`}
-      subtitle="Visão geral e monitoramento operacional do turno"
+      subtitle="Monitore os KPIs e a performance do turno atual."
     >
+      {/* Situação de Aprendizagem Ativa */}
+      {turno && (
+        <div className="mb-6 p-5 glass rounded-2xl border border-border flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mt-1 shrink-0">
+              <BookOpen size={20} />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-1">Cenário da Simulação</p>
+              <h3 className="text-base font-bold text-foreground mb-1">{turno.titulo}</h3>
+              <p className="text-xs text-muted-foreground max-w-3xl leading-relaxed">
+                {turno.contexto}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top KPI row Reais */}
       <div className="grid grid-cols-4 gap-3 mb-8">
         <div className="stripe-card rounded-xl p-5">

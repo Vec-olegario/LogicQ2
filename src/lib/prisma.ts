@@ -14,13 +14,15 @@ import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 import ws from "ws";
 
-// O driver serverless do Neon precisa de uma implementação de WebSocket.
-// Em Node.js usamos a lib `ws`; em edge runtimes (Cloudflare, Vercel Edge)
-// o runtime já fornece WebSocket nativo.
+// Configura WebSocket para o driver Serverless do Neon
 neonConfig.webSocketConstructor = ws;
 
+const connectionString =
+  process.env.DATABASE_URL ||
+  "postgresql://neondb_owner:npg_2icau9JewmEv@ep-silent-moon-acqk7xpn-pooler.sa-east-1.aws.neon.tech/Logiq?sslmode=require";
+
 function criarPrismaClient(): PrismaClient {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new Pool({ connectionString });
   const adapter = new PrismaNeon(pool as any);
   return new PrismaClient({ adapter });
 }
