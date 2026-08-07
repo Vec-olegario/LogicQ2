@@ -145,7 +145,7 @@ export default function DashboardPage() {
       )}
 
       {/* Top KPI row Reais */}
-      <div className="grid grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <div className="stripe-card rounded-xl p-5">
           <p className="text-xs text-muted-foreground mb-2 font-medium">Duração do Turno</p>
           <p className="kpi-number text-2xl font-bold text-foreground">
@@ -183,7 +183,7 @@ export default function DashboardPage() {
       {/* Flow modules */}
       <div className="mb-8">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">Etapas da Operação</p>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {flowModules.map((mod) => {
             const Icon = mod.icon
             return (
@@ -201,7 +201,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-5">
+      <div className="flex flex-col lg:grid lg:grid-cols-5 gap-5">
         {/* Integrantes da Equipe Reais (3 cols) */}
         <div className="col-span-3 stripe-card rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">

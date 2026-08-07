@@ -158,7 +158,7 @@ export default function EstoquePage() {
       badge="Etapa 02"
     >
       {/* KPIs Reais */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="stripe-card rounded-xl p-4">
           <p className="text-xs text-muted-foreground mb-1 font-medium">Itens no Estoque (Estocados)</p>
           <p className="kpi-number text-3xl font-bold text-blue-500">{estocados.length}</p>
@@ -190,7 +190,7 @@ export default function EstoquePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-5 gap-6 mb-8">
+      <div className="flex flex-col lg:grid lg:grid-cols-5 gap-6 mb-8">
         {/* Coluna 1 — Itens Pendentes para Endereçar (3 cols) */}
         <div className="col-span-3 space-y-4">
           <div className="stripe-card rounded-xl p-5 border-border">
@@ -213,7 +213,7 @@ export default function EstoquePage() {
             ) : (
               <div className="space-y-3">
                 {pendentesEnderecar.map((item) => (
-                  <div key={item.id} className="p-3.5 rounded-lg border border-border bg-card flex items-center justify-between gap-3">
+                  <div key={item.id} className="p-3.5 rounded-lg border border-border bg-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
                       <p className="font-semibold text-xs text-foreground">{item.descricao}</p>
                       <p className="text-[11px] text-muted-foreground">

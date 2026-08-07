@@ -1,12 +1,12 @@
 import { google } from '@ai-sdk/google';
-import { streamText, Message } from 'ai';
+import { streamText } from 'ai';
 
 // Permitir tempo extra para resposta da IA
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const { messages }: { messages: Message[] } = await req.json();
+    const { messages } = await req.json();
 
     const result = streamText({
       model: google('gemini-1.5-flash'),
@@ -18,7 +18,7 @@ Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a meno
       messages,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('API Chat Error:', error);
     return new Response('Error Processing Request', { status: 500 });

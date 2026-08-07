@@ -208,7 +208,7 @@ export default function RecebimentoPage() {
       badge="Etapa 01"
     >
       {/* KPIs Reais */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="stripe-card rounded-xl p-4">
           <p className="text-xs text-muted-foreground mb-1 font-medium">Itens em Recebimento</p>
           <p className="kpi-number text-3xl font-bold text-amber-500">{recebidosList.length}</p>
@@ -228,7 +228,7 @@ export default function RecebimentoPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-6">
+      <div className="flex flex-col lg:grid lg:grid-cols-5 gap-6">
         {/* Left Column — Form + Tabela de Itens Reais (3 cols) */}
         <div className="col-span-3 space-y-6">
           {/* Form de Cadastro de Item */}
@@ -256,7 +256,7 @@ export default function RecebimentoPage() {
             )}
 
             <form onSubmit={handleReceber} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-foreground mb-1 block">Código (EAN/SKU)</label>
                   <input
@@ -281,8 +281,8 @@ export default function RecebimentoPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
                   <label className="text-xs font-semibold text-foreground mb-1 block">Descrição do Produto</label>
                   <input
                     type="text"

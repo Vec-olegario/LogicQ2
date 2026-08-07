@@ -148,7 +148,7 @@ export default function PickingPage() {
       badge="Etapa 03"
     >
       {/* KPIs Reais */}
-      <div className="grid grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <div className="stripe-card rounded-xl p-4">
           <p className="text-xs text-muted-foreground mb-1 font-medium">Acurácia do Turno</p>
           <p className="kpi-number text-2xl font-bold text-emerald-500">{acuracia}%</p>
@@ -171,7 +171,7 @@ export default function PickingPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-6 mb-8">
+      <div className="flex flex-col lg:grid lg:grid-cols-5 gap-6 mb-8">
         {/* Coletor RF Virtual (3 cols) */}
         <div className="col-span-3 space-y-4">
           <div className="stripe-card rounded-2xl p-6 border border-border shadow-float">

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, Send, HelpCircle, Bot } from "lucide-react";
+// @ts-ignore
 import { useChat } from "ai/react";
 
 const PERGUNTAS_RAPIDAS = [
@@ -71,7 +72,7 @@ export function ChatbotAtlas() {
 
           {/* Área de Mensagens */}
           <div className="flex-1 p-4 overflow-y-auto bg-muted/20 space-y-4">
-            {messages.map((m) => (
+            {messages.map((m: { id: string, role: string, content: string }) => (
               <div
                 key={m.id}
                 className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}

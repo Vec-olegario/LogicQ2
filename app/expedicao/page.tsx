@@ -129,7 +129,7 @@ export default function ExpedicaoPage() {
       badge="Etapa 04"
     >
       {/* KPIs Reais */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="stripe-card rounded-xl p-4">
           <p className="text-xs text-muted-foreground mb-1 font-medium">Aguardando Expedição</p>
           <p className="kpi-number text-3xl font-bold text-amber-500">{separados.length}</p>
@@ -163,7 +163,7 @@ export default function ExpedicaoPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Coluna 1 — Itens Separados Prontos para Expedição */}
         <div className="stripe-card rounded-xl p-5 border-border">
           <h2 className="text-sm font-bold text-foreground mb-1 flex items-center gap-2">
@@ -185,7 +185,7 @@ export default function ExpedicaoPage() {
           ) : (
             <div className="space-y-3">
               {separados.map((item) => (
-                <div key={item.id} className="p-3.5 rounded-lg border border-border bg-card flex items-center justify-between gap-3">
+                <div key={item.id} className="p-3.5 rounded-lg border border-border bg-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <p className="font-semibold text-xs text-foreground">{item.descricao}</p>
                     <p className="text-[11px] text-muted-foreground">
