@@ -14,6 +14,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
     lastUserMessage = messages.filter((m: any) => m.role === "user").pop()?.content || "";
 
+    const openRouterKey = process.env.OPENROUTER_API_KEY || '';
     const groqKey = process.env.GROQ_API_KEY || '';
     const xaiKey = process.env.XAI_API_KEY || process.env.GROK_API_KEY || '';
 
@@ -40,8 +41,13 @@ Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a meno
     let apiKey = "";
     let modelName = "";
 
-    if (groqKey) {
-      // Provedor 100% Gratuito: Groq (Llama 3.3)
+    if (openRouterKey) {
+      // Provedor OpenRouter (IA 100% Gratuita e Sem Erros de Cadastro)
+      endpoint = "https://openrouter.ai/api/v1/chat/completions";
+      apiKey = openRouterKey;
+      modelName = "meta-llama/llama-3.3-70b-instruct:free";
+    } else if (groqKey) {
+      // Provedor Groq
       endpoint = "https://api.groq.com/openai/v1/chat/completions";
       apiKey = groqKey;
       modelName = "llama-3.3-70b-versatile";
@@ -58,7 +64,9 @@ Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a meno
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://logiq.vercel.app",
+        "X-Title": "LogiQ Atlas Chatbot"
       },
       body: JSON.stringify({
         model: modelName,
@@ -73,7 +81,7 @@ Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a meno
     }
 
     const data = await response.json();
-    const responseText = data.choices[0].message.content;
+    const responseText = data.choices[0]?.message?.content || "Desculpe, não consegui obter uma resposta válida.";
 
     return Response.json({ response: responseText });
   } catch (error) {
