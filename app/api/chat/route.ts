@@ -1,5 +1,10 @@
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
+
+const googleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || '';
+const googleProvider = createGoogleGenerativeAI({
+  apiKey: googleKey,
+});
 
 // Permitir tempo extra para resposta da IA
 export const maxDuration = 30;
@@ -24,20 +29,36 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
     
-    // Pega a última mensagem do usuário para possível fallback
-    if (messages && messages.length > 0) {
-      const last = messages[messages.length - 1];
-      if (last.role === "user") lastUserMessage = last.content;
+    // Normaliza todas as mensagens recebidas (suporta v3 content e v4 parts)
+    const formattedMessages = (messages || []).map((m: any) => {
+      let contentStr = "";
+      if (typeof m.content === "string") {
+        contentStr = m.content;
+      } else if (Array.isArray(m.parts)) {
+        contentStr = m.parts
+          .map((p: any) => (p.type === "text" ? p.text : ""))
+          .join("");
+      }
+      return {
+        role: m.role === "assistant" ? "assistant" : "user",
+        content: contentStr || "",
+      };
+    });
+
+    // Extrai a última mensagem para o fallback
+    const lastUser = formattedMessages.filter((m: any) => m.role === "user").pop();
+    if (lastUser) {
+      lastUserMessage = lastUser.content;
     }
 
     const result = streamText({
-      model: google('gemini-1.5-flash'),
+      model: googleProvider('gemini-1.5-flash'),
       system: `Você é o Atlas, um assistente especializado e simpático de suporte em Centro de Distribuição e WMS (Warehouse Management System).
 Você atua na plataforma educacional LogiQ.
 Seja conciso, direto e utilize formatação markdown quando necessário.
 Ajude os alunos a entender conceitos de logística como 5S, FIFO, LIFO, Curva ABC, OTIF, inventário, picking, expedição e docas.
 Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a menos que o usuário peça muitos detalhes.`,
-      messages,
+      messages: formattedMessages,
     });
 
     return result.toTextStreamResponse();
