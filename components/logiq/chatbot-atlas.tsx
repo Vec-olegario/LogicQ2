@@ -2,12 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, Send, HelpCircle, Bot } from "lucide-react";
-
-interface ChatMessage {
-  id: string;
-  sender: "bot" | "user";
-  text: string;
-}
+import { useChat } from "ai/react";
 
 const PERGUNTAS_RAPIDAS = [
   "O que é WMS?",
@@ -18,16 +13,17 @@ const PERGUNTAS_RAPIDAS = [
 
 export function ChatbotAtlas() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "1",
-      sender: "bot",
-      text: "Olá! Sou o Atlas, seu especialista de suporte em Centro de Distribuição. Como posso te ajudar hoje?",
-    },
-  ]);
-  const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { messages, input, handleInputChange, handleSubmit, setInput, append, isLoading } = useChat({
+    initialMessages: [
+      {
+        id: "1",
+        role: "assistant",
+        content: "Olá! Sou o Atlas, seu especialista de suporte em Centro de Distribuição. Como posso te ajudar hoje?",
+      },
+    ],
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,33 +31,12 @@ export function ChatbotAtlas() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping, isOpen]);
+  }, [messages, isLoading, isOpen]);
 
-  const handleSendMessage = async (perguntaTexto?: string) => {
-    const textToSend = (perguntaTexto || inputValue).trim();
-    if (!textToSend) return;
-
-    // Mensagem do usuário
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: textToSend,
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    if (!perguntaTexto) setInputValue("");
-
-    // Simulando AI
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const botMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: "bot",
-        text: "No momento, estou operando em modo de simulação no novo LogiQ. Em breve estarei conectado à inteligência artificial para responder sobre: \"" + textToSend + "\".",
-      };
-      setMessages((prev) => [...prev, botMsg]);
-      setIsTyping(false);
-    }, 1500);
+  const handleSendMessage = (perguntaTexto?: string) => {
+    if (perguntaTexto) {
+      append({ role: "user", content: perguntaTexto });
+    }
   };
 
   return (
@@ -99,21 +74,21 @@ export function ChatbotAtlas() {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
                   className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                    m.sender === "user"
+                    m.role === "user"
                       ? "bg-primary text-primary-foreground rounded-br-sm shadow-sm"
                       : "bg-card border border-border text-foreground rounded-bl-sm shadow-sm"
                   }`}
                 >
-                  {m.text}
+                  {m.content}
                 </div>
               </div>
             ))}
             
-            {isTyping && (
+            {isLoading && (
               <div className="flex justify-start">
                 <div className="max-w-[85%] px-4 py-3 rounded-2xl bg-card border border-border text-foreground rounded-bl-sm shadow-sm flex items-center gap-2">
                   <Bot size={16} className="text-primary animate-pulse" />
@@ -146,25 +121,22 @@ export function ChatbotAtlas() {
           {/* Input de Texto */}
           <div className="p-3 bg-card border-t border-border flex flex-col gap-2">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendMessage();
-              }}
+              onSubmit={handleSubmit}
               className="flex gap-2"
             >
               <input
                 type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                value={input}
+                onChange={handleInputChange}
                 placeholder="Pergunte ao Atlas..."
                 className="flex-1 bg-background border border-input rounded-xl px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
               />
               <button
                 type="submit"
-                disabled={!inputValue.trim() || isTyping}
+                disabled={!input.trim() || isLoading}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:hover:bg-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-colors cursor-pointer"
               >
-                <Send size={16} className={inputValue.trim() ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
+                <Send size={16} className={input.trim() ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
               </button>
             </form>
             <p className="text-[10px] text-center text-muted-foreground leading-tight px-1">
