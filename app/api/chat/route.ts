@@ -1,10 +1,4 @@
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { streamText } from 'ai';
-
-const googleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || '';
-const googleProvider = createGoogleGenerativeAI({
-  apiKey: googleKey,
-});
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Permitir tempo extra para resposta da IA
 export const maxDuration = 30;
@@ -16,75 +10,52 @@ const FALLBACK_ANSWERS: Record<string, string> = {
   "otif": "OTIF (On-Time In-Full) é o principal indicador de entregas logísticas. Mede se os pedidos chegaram no prazo combinado (On-Time) e na quantidade correta e sem avarias (In-Full)."
 };
 
-function getFallbackResponse(lastMessage: string): string {
-  const msg = lastMessage.toLowerCase();
-  for (const [key, answer] of Object.entries(FALLBACK_ANSWERS)) {
-    if (msg.includes(key)) return answer;
-  }
-  return "🤖 Estou operando em modo offline temporário (sem conexão com a IA). Mas posso te responder perguntas básicas sobre: WMS, 5S, FIFO ou OTIF. Escolha uma das opções!";
-}
-
 export async function POST(req: Request) {
   let lastUserMessage = "";
+  
   try {
     const { messages } = await req.json();
-    
-    // Normaliza todas as mensagens recebidas (suporta v3 content e v4 parts)
-    const formattedMessages = (messages || []).map((m: any) => {
-      let contentStr = "";
-      if (typeof m.content === "string") {
-        contentStr = m.content;
-      } else if (Array.isArray(m.parts)) {
-        contentStr = m.parts
-          .map((p: any) => (p.type === "text" ? p.text : ""))
-          .join("");
-      }
-      return {
-        role: m.role === "assistant" ? "assistant" : "user",
-        content: contentStr || "",
-      };
-    });
+    lastUserMessage = messages.filter((m: any) => m.role === "user").pop()?.content || "";
 
-    // Extrai a última mensagem para o fallback
-    const lastUser = formattedMessages.filter((m: any) => m.role === "user").pop();
-    if (lastUser) {
-      lastUserMessage = lastUser.content;
-    }
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || '';
+    if (!apiKey) throw new Error("Chave de API não configurada");
 
-    const result = streamText({
-      model: googleProvider('gemini-1.5-flash'),
-      system: `Você é o Atlas, um assistente especializado e simpático de suporte em Centro de Distribuição e WMS (Warehouse Management System).
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      systemInstruction: `Você é o Atlas, um assistente especializado e simpático de suporte em Centro de Distribuição e WMS (Warehouse Management System).
 Você atua na plataforma educacional LogiQ.
 Seja conciso, direto e utilize formatação markdown quando necessário.
 Ajude os alunos a entender conceitos de logística como 5S, FIFO, LIFO, Curva ABC, OTIF, inventário, picking, expedição e docas.
-Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a menos que o usuário peça muitos detalhes.`,
-      messages: formattedMessages,
+Mantenha suas respostas relativamente curtas (no máximo 3-4 parágrafos) a menos que o usuário peça muitos detalhes.`
     });
 
-    return result.toUIMessageStreamResponse();
+    // Constrói o histórico, ignorando a mensagem inicial do bot e a última mensagem do usuário (que é enviada solta)
+    const history = messages
+      .filter((m: any) => m.id !== "1") 
+      .slice(0, -1)
+      .map((m: any) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content || "" }]
+      }));
+
+    const chat = model.startChat({ history });
+    const result = await chat.sendMessage(lastUserMessage);
+    const responseText = result.response.text();
+
+    return Response.json({ response: responseText });
   } catch (error) {
-    console.error('API Chat Error, usando fallback estático:', error);
+    console.error('API Chat Error:', error);
     
-    // Resposta de fallback caso a IA falhe ou não tenha chave API
-    const fallbackText = getFallbackResponse(lastUserMessage);
-    
-    // Formata o texto no UI Message Stream Protocol (0:"texto")
-    const streamText = `0:${JSON.stringify(fallbackText)}\n`;
-    
-    // Retorna a resposta como um stream estático compatível com UIMessageStream
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(new TextEncoder().encode(streamText));
-        controller.close();
+    let fallbackText = "🤖 Estou operando em modo offline temporário. Posso te responder perguntas básicas sobre: WMS, 5S, FIFO ou OTIF.";
+    for (const [key, answer] of Object.entries(FALLBACK_ANSWERS)) {
+      if (lastUserMessage.toLowerCase().includes(key)) {
+        fallbackText = answer;
+        break;
       }
-    });
+    }
 
-    return new Response(stream, {
-      status: 200,
-      headers: { 
-        'Content-Type': 'text/plain; charset=utf-8',
-        'x-vercel-ai-data-stream': 'v1'
-      }
-    });
+    // Mesmo no erro, devolvemos um JSON certinho com a resposta estática
+    return Response.json({ response: fallbackText });
   }
 }

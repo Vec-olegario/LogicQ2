@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, Send, HelpCircle } from "lucide-react";
-import { useChat } from "@ai-sdk/react";
 
 const PERGUNTAS_RAPIDAS = [
   "O que é WMS?",
@@ -11,27 +10,25 @@ const PERGUNTAS_RAPIDAS = [
   "O que é OTIF?",
 ];
 
+type Message = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+};
+
 export function ChatbotAtlas() {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status } = useChat({
-    messages: [
-      {
-        id: "1",
-        role: "assistant",
-        parts: [
-          {
-            type: "text",
-            text: "Olá! Sou o Atlas, seu especialista de suporte em Centro de Distribuição. Como posso te ajudar hoje?",
-          },
-        ],
-      },
-    ],
-  });
-
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "1",
+      role: "assistant",
+      content: "Olá! Sou o Atlas, seu especialista de suporte em Centro de Distribuição. Como posso te ajudar hoje?",
+    },
+  ]);
   const [input, setInput] = useState("");
-  const isLoading = status === "streaming" || status === "submitted";
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -45,19 +42,56 @@ export function ChatbotAtlas() {
     scrollToBottom();
   }, [messages, isLoading, isOpen]);
 
-  const handleSendMessage = (perguntaTexto?: string) => {
-    if (perguntaTexto && sendMessage) {
-      sendMessage({ text: perguntaTexto });
+  const enviarMensagem = async (texto: string) => {
+    if (!texto.trim() || isLoading) return;
+
+    const novaMensagemUsuario: Message = { 
+      id: Date.now().toString(), 
+      role: "user", 
+      content: texto 
+    };
+    
+    const novasMensagens = [...messages, novaMensagemUsuario];
+    setMessages(novasMensagens);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: novasMensagens })
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro na resposta da API");
+      }
+
+      const data = await response.json();
+      
+      const novaMensagemAtlas: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: data.response || "Desculpe, não consegui gerar uma resposta."
+      };
+      
+      setMessages((prev) => [...prev, novaMensagemAtlas]);
+    } catch (error) {
+      console.error("Erro no chat:", error);
+      const fallbackMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "🤖 Estou operando em modo offline temporário. Posso te responder perguntas básicas sobre: WMS, 5S, FIFO ou OTIF."
+      };
+      setMessages((prev) => [...prev, fallbackMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const messageText = (input || "").trim();
-    if (!messageText || isLoading || !sendMessage) return;
-
-    sendMessage({ text: messageText });
-    setInput("");
+    enviarMensagem(input);
   };
 
   return (
@@ -92,28 +126,22 @@ export function ChatbotAtlas() {
 
           {/* Área de Mensagens */}
           <div className="flex-1 p-4 overflow-y-auto bg-muted/20 space-y-4">
-            {messages.map((m: any) => {
-              const textContent = m.parts
-                ? m.parts.map((p: any) => (p.type === "text" ? p.text : "")).join("")
-                : m.content || "";
-
-              return (
+            {messages.map((m) => (
+              <div
+                key={m.id}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              >
                 <div
-                  key={m.id}
-                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    m.role === "user"
+                      ? "bg-primary text-primary-foreground rounded-br-xs shadow-sm"
+                      : "bg-card border border-border text-foreground rounded-bl-xs shadow-xs whitespace-pre-wrap"
+                  }`}
                 >
-                  <div
-                    className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                      m.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-xs shadow-sm"
-                        : "bg-card border border-border text-foreground rounded-bl-xs shadow-xs"
-                    }`}
-                  >
-                    {textContent}
-                  </div>
+                  {m.content}
                 </div>
-              );
-            })}
+              </div>
+            ))}
 
             {isLoading && (
               <div className="flex justify-start">
@@ -132,7 +160,7 @@ export function ChatbotAtlas() {
               {PERGUNTAS_RAPIDAS.map((p) => (
                 <button
                   key={p}
-                  onClick={() => handleSendMessage(p)}
+                  onClick={() => enviarMensagem(p)}
                   className="whitespace-nowrap flex-shrink-0 bg-background border border-border hover:border-primary/50 text-foreground text-xs font-medium px-3 py-1.5 rounded-full shadow-sm transition-colors cursor-pointer"
                 >
                   {p}
