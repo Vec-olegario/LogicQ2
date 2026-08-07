@@ -118,7 +118,7 @@ export default function EstoquePage() {
                 {/* Embed video option */}
                 <iframe
                   className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  src="https://www.youtube.com/embed/invalid_video_id"
                   title="YouTube video player"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

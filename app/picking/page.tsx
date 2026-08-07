@@ -111,7 +111,7 @@ export default function PickingPage() {
                 <span className="text-xs font-bold text-muted-foreground">Assista à aula explicativa do Picking</span>
                 <iframe
                   className="absolute inset-0 w-full h-full opacity-10 hover:opacity-100 transition-opacity"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                  src="https://www.youtube.com/embed/invalid_video_id"
                   title="YouTube video player"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

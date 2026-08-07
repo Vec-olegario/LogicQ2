@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prebuild": "rmdir /s /q node_modules\\.prisma\\client && echo cleaned prisma client",
-    "build": "npm run prebuild && prisma generate && next build",
+    "build": "prisma generate && next build",
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start"
