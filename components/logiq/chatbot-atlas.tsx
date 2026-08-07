@@ -133,10 +133,10 @@ export function ChatbotAtlas() {
               />
               <button
                 type="submit"
-                disabled={!input.trim() || isLoading}
+                disabled={!(input || "").trim() || isLoading}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:hover:bg-primary w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-colors cursor-pointer"
               >
-                <Send size={16} className={input.trim() ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
+                <Send size={16} className={(input || "").trim() ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
               </button>
             </form>
             <p className="text-[10px] text-center text-muted-foreground leading-tight px-1">
