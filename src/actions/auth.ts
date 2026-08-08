@@ -383,7 +383,15 @@ export async function getTodasEquipes(senhaAdmin: string): Promise<ActionResult<
     const equipes = await prisma.equipe.findMany({
       include: {
         _count: {
-          select: { usuarios: true, turnos: true }
+          select: { turnos: true }
+        },
+        usuarios: {
+          select: { id: true, nome: true, isLider: true },
+          orderBy: { nome: "asc" }
+        },
+        turnos: {
+          where: { ativo: true },
+          take: 1
         }
       },
       orderBy: { criadoEm: "desc" }

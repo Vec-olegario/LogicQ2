@@ -69,8 +69,12 @@ export async function receberItem(
     quantidade: number;
     fornecedor: string;
   },
+  usuarioId: string
 ): Promise<ActionResult<Item>> {
   try {
+    const erroPermissao = await verificarPermissao(usuarioId, "Recebimento");
+    if (erroPermissao) return { sucesso: false, erro: erroPermissao };
+
     // ------- Validação com Zod -------
     const parsed = ReceberItemSchema.safeParse(dados);
     if (!parsed.success) {
@@ -144,15 +148,19 @@ const EnderecarItemSchema = z.object({
 
 export async function enderecarItem(
   itemId: string,
-  posicao: string,
+  dados: { posicao: string },
+  usuarioId: string
 ): Promise<ActionResult<Item>> {
   try {
+    const erroPermissao = await verificarPermissao(usuarioId, "Estoque");
+    if (erroPermissao) return { sucesso: false, erro: erroPermissao };
+
     // ------- Validação -------
-    const parsed = EnderecarItemSchema.safeParse({ posicao });
+    const parsed = EnderecarItemSchema.safeParse(dados);
     if (!parsed.success) {
       return { sucesso: false, erro: parsed.error.issues[0].message };
     }
-    const { posicao: posicaoLimpa } = parsed.data;
+    const dadosLimpos = parsed.data;
 
     // ------- Passo 1: Buscar item -------
     const item = await prisma.item.findUnique({
@@ -175,7 +183,7 @@ export async function enderecarItem(
     const itemAtualizado = await prisma.item.update({
       where: { id: itemId },
       data: {
-        posicao: posicaoLimpa,
+        posicao: dadosLimpos.posicao,
         status: "ESTOCADO",
       },
     });
@@ -217,14 +225,17 @@ export async function enderecarItem(
 
 export async function validarPicking(
   itemId: string,
-  codigoEsperado: string,
   codigoBipado: string,
-): Promise<ActionResult<{ acertou: boolean }>> {
+  usuarioId: string
+): Promise<ActionResult<Item>> {
   try {
+    const erroPermissao = await verificarPermissao(usuarioId, "Picking");
+    if (erroPermissao) return { sucesso: false, erro: erroPermissao };
+
     // ------- Passo 1: Buscar item + turno -------
     const item = await prisma.item.findUnique({
       where: { id: itemId },
-      include: { turno: { select: { exigirSkuExato: true } } }
+      include: { turno: true }
     });
 
     if (!item) {
@@ -241,16 +252,17 @@ export async function validarPicking(
 
     // ------- Passo 3: Comparar códigos -------
     // Normalização: trim + lowercase para tolerar variações de digitação.
-    const esperadoNorm = codigoEsperado.trim().toLowerCase();
+    const esperadoNorm = item.codigo.trim().toLowerCase();
     const bipadoNorm = codigoBipado.trim().toLowerCase();
     
     // Se a situação de aprendizagem exige SKU exato, comparamos. Senão, assumimos acerto automático.
     const acertou = item.turno.exigirSkuExato ? (esperadoNorm === bipadoNorm) : true;
 
     // ------- Passo 4: Atualizar item + placar do turno atomicamente -------
+    let itemResultado: Item;
     if (acertou) {
       // Bipagem correta: avança o item para SEPARADO e registra acerto.
-      await prisma.$transaction([
+      const [updatedItem] = await prisma.$transaction([
         prisma.item.update({
           where: { id: itemId },
           data: { status: "SEPARADO" },
@@ -260,6 +272,7 @@ export async function validarPicking(
           data: { acertosPicking: { increment: 1 } },
         }),
       ]);
+      itemResultado = updatedItem;
     } else {
       // Bipagem incorreta: apenas registra o erro no turno.
       // O item permanece ESTOCADO para que o aluno tente novamente.
@@ -267,12 +280,13 @@ export async function validarPicking(
         where: { id: item.turnoId },
         data: { errosPicking: { increment: 1 } },
       });
+      itemResultado = item;
     }
 
     revalidatePath("/equipe");
     revalidatePath("/dashboard");
 
-    return { sucesso: true, dados: { acertou } };
+    return { sucesso: true, dados: itemResultado };
   } catch (erro) {
     console.error("[validarPicking] Falha:", erro);
     return {
@@ -300,15 +314,19 @@ const ExpedirItemSchema = z.object({
 
 export async function expedirItem(
   itemId: string,
-  docaSaida: string,
+  dados: { docaSaida: string },
+  usuarioId: string
 ): Promise<ActionResult<Item>> {
   try {
+    const erroPermissao = await verificarPermissao(usuarioId, "Expedição");
+    if (erroPermissao) return { sucesso: false, erro: erroPermissao };
+
     // ------- Validação -------
-    const parsed = ExpedirItemSchema.safeParse({ docaSaida });
+    const parsed = ExpedirItemSchema.safeParse(dados);
     if (!parsed.success) {
       return { sucesso: false, erro: parsed.error.issues[0].message };
     }
-    const { docaSaida: docaLimpa } = parsed.data;
+    const dadosLimpos = parsed.data;
 
     // ------- Passo 1: Buscar item -------
     const item = await prisma.item.findUnique({
@@ -331,7 +349,7 @@ export async function expedirItem(
     const itemAtualizado = await prisma.item.update({
       where: { id: itemId },
       data: {
-        docaSaida: docaLimpa,
+        docaSaida: dadosLimpos.docaSaida,
         status: "EXPEDIDO",
       },
     });
@@ -450,7 +468,28 @@ export async function iniciarTurno(
 // ============================================================================
 // 6. getTurnoAtivoComItens
 // ============================================================================
-// Busca o turno ativo da equipe com todos os seus itens e slots em uma única chamada.
+// Helper: Verificar Permissão de Setor
+// ============================================================================
+async function verificarPermissao(usuarioId: string, setorNecessario: string): Promise<string | null> {
+  if (!usuarioId) return "Acesso Negado: O ID do usuário é obrigatório.";
+  
+  const usuario = await prisma.usuario.findUnique({
+    where: { id: usuarioId },
+    include: { slotAtual: true }
+  });
+
+  if (!usuario) return "Usuário não encontrado.";
+  if (usuario.isLider) return null; // Líder tem acesso total
+  
+  if (!usuario.slotAtual || usuario.slotAtual.papel !== setorNecessario) {
+    return `Acesso Negado: Você está no setor "${usuario.slotAtual?.papel || "Nenhum"}". Apenas o Líder ou o operador de ${setorNecessario} pode usar este coletor.`;
+  }
+  
+  return null; // Liberado
+}
+
+// ============================================================================
+// Helper: Buscar Turno Ativo da equipe com todos os seus itens e slots em uma única chamada.
 // ============================================================================
 
 export async function getTurnoAtivoComItens(
@@ -589,4 +628,40 @@ export async function getVisaoGeralVisitante(): Promise<ActionResult<any>> {
   }
 }
 
+// ============================================================================
+// 8. encerrarTurnoAdmin
+// ============================================================================
+export async function encerrarTurnoAdmin(
+  senhaAdmin: string,
+  equipeId: string
+): Promise<ActionResult<void>> {
+  try {
+    const senhaCorreta = process.env.ADMIN_PASSWORD || "instrutor-adm";
+    if (senhaAdmin !== senhaCorreta) {
+      return { sucesso: false, erro: "Senha de administrador incorreta." };
+    }
 
+    const turnoAtivo = await prisma.turno.findFirst({
+      where: { equipeId, ativo: true },
+    });
+
+    if (!turnoAtivo) {
+      return { sucesso: false, erro: "Nenhum turno ativo encontrado para esta equipe." };
+    }
+
+    await prisma.turno.update({
+      where: { id: turnoAtivo.id },
+      data: { ativo: false },
+    });
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/situacao");
+    revalidatePath("/dashboard");
+    revalidatePath("/equipe");
+
+    return { sucesso: true };
+  } catch (erro) {
+    console.error("[encerrarTurnoAdmin] Falha:", erro);
+    return { sucesso: false, erro: "Não foi possível encerrar o turno." };
+  }
+}
