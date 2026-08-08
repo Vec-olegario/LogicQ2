@@ -7,21 +7,44 @@
 }
 
 html.high-contrast, .high-contrast {
-  /* Alto contraste absoluto: Fundo Preto, Letras Amarelas ou Brancas */
-  --background: oklch(0.1 0 0);
-  --foreground: oklch(0.95 0.15 100);
+  /* Alto Contraste WCAG - Fundo Super Escuro, Textos de Alto Destaque (Amarelo/Branco), Bordas Claras */
+  --background: oklch(0 0 0) !important;
+  --foreground: oklch(0.98 0.15 95) !important; /* Amarelo vivo */
   
-  --card: oklch(0 0 0);
-  --card-foreground: oklch(0.95 0.15 100);
+  --card: oklch(0 0 0) !important;
+  --card-foreground: oklch(1 0 0) !important; /* Branco puro */
   
-  --primary: oklch(0.9 0.2 100);
-  --primary-foreground: oklch(0.1 0 0);
+  --popover: oklch(0 0 0) !important;
+  --popover-foreground: oklch(1 0 0) !important;
+
+  --primary: oklch(0.98 0.15 95) !important; /* Amarelo */
+  --primary-foreground: oklch(0 0 0) !important; /* Preto */
   
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.9 0.1 100);
+  --secondary: oklch(0.2 0 0) !important; 
+  --secondary-foreground: oklch(1 0 0) !important;
   
-  --border: oklch(0.9 0.2 100);
-  --ring: oklch(0.9 0.2 100);
+  --muted: oklch(0.15 0 0) !important;
+  --muted-foreground: oklch(0.85 0 0) !important;
+  
+  --accent: oklch(0.9 0.2 200) !important; /* Cyan vivo */
+  --accent-foreground: oklch(0 0 0) !important;
+  
+  --destructive: oklch(0.6 0.25 25) !important; /* Vermelho vivo */
+  --destructive-foreground: oklch(1 0 0) !important;
+  
+  --border: oklch(1 0 0) !important; /* Borda 100% branca para demarcar limites */
+  --input: oklch(1 0 0) !important;
+  --ring: oklch(0.98 0.15 95) !important; /* Foco amarelo */
+}
+
+/* Forçar fundos de glassmorphism a ficarem opacos no alto contraste */
+html.high-contrast .glass,
+html.high-contrast .stripe-card,
+html.high-contrast .stripe-card-hover {
+  background: oklch(0 0 0) !important;
+  border-color: oklch(1 0 0) !important;
+  box-shadow: none !important;
+  color: oklch(1 0 0) !important;
 }
 
 @custom-variant dark (&:is(.dark *));
