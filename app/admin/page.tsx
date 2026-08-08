@@ -81,7 +81,7 @@ export default function AdminPage() {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2 mb-4">
-                  <div className="bg-white border border-border rounded-xl p-3">
+                  <div className="bg-card border border-border rounded-xl p-3">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                         <Users size={12} /> Alunos ({equipe.usuarios?.length || 0})
@@ -101,7 +101,7 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white border border-border rounded-xl p-3">
+                  <div className="bg-card border border-border rounded-xl p-3">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                         <Activity size={12} /> Turno

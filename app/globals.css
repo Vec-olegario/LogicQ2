@@ -48,7 +48,9 @@ html.high-contrast [class*="bg-amber-"],
 html.high-contrast [class*="bg-indigo-"],
 html.high-contrast [class*="bg-violet-"],
 html.high-contrast [class*="bg-rose-"],
-html.high-contrast [class*="bg-cyan-"] {
+html.high-contrast [class*="bg-cyan-"],
+html.high-contrast [class*="bg-orange-"],
+html.high-contrast [class*="bg-red-"] {
   background-color: var(--background) !important;
 }
 
@@ -58,7 +60,9 @@ html.high-contrast [class*="border-amber-"],
 html.high-contrast [class*="border-indigo-"],
 html.high-contrast [class*="border-violet-"],
 html.high-contrast [class*="border-rose-"],
-html.high-contrast [class*="border-cyan-"] {
+html.high-contrast [class*="border-cyan-"],
+html.high-contrast [class*="border-orange-"],
+html.high-contrast [class*="border-red-"] {
   border-color: var(--border) !important;
 }
 
@@ -69,6 +73,8 @@ html.high-contrast [class*="text-indigo-"],
 html.high-contrast [class*="text-violet-"],
 html.high-contrast [class*="text-rose-"],
 html.high-contrast [class*="text-cyan-"],
+html.high-contrast [class*="text-orange-"],
+html.high-contrast [class*="text-red-"],
 html.high-contrast .text-muted-foreground {
   color: var(--foreground) !important;
 }

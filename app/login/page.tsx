@@ -98,13 +98,13 @@ export default function LoginPage() {
           <div className="flex bg-muted p-1 rounded-xl mb-6">
             <button
               onClick={() => setAcao("entrar")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${acao === "entrar" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${acao === "entrar" ? "bg-card text-foreground shadow-sm border border-border" : "text-muted-foreground hover:text-foreground"}`}
             >
               Entrar na Equipe
             </button>
             <button
               onClick={() => setAcao("criar")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${acao === "criar" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${acao === "criar" ? "bg-card text-foreground shadow-sm border border-border" : "text-muted-foreground hover:text-foreground"}`}
             >
               Criar Nova Equipe
             </button>
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 value={nomeUsuario}
                 onChange={(e) => setNomeUsuario(e.target.value)}
                 placeholder="Ex: Vítor Emanuel"
-                className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
                 disabled={isPending || sucessoMsg !== null}
               />
             </div>
@@ -134,7 +134,7 @@ export default function LoginPage() {
                 value={nomeEquipe}
                 onChange={(e) => setNomeEquipe(e.target.value)}
                 placeholder="Ex: Logística A"
-                className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
                 disabled={isPending || sucessoMsg !== null}
               />
             </div>
