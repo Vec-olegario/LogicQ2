@@ -18,6 +18,7 @@ import {
 import { PageShell } from "@/components/logiq/page-shell"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useEquipe } from "@/hooks/use-equipe"
 import { useTextToSpeech } from "@/hooks/use-tts"
 import { getTurnoAtivoComItens, validarPicking } from "@/src/actions/wms"
@@ -167,21 +168,42 @@ export default function PickingPage() {
               </div>
             </div>
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h3 className="font-bold text-base mb-4">Tecnologias de Coleta e Bipagem</h3>
-              <ul className="space-y-3 text-xs text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 shrink-0" />
-                  <div><strong>Coletor RF:</strong> Dispositivo móvel com leitor laser de código de barras (EAN). Valida produto e endereço em tempo real.</div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 shrink-0" />
-                  <div><strong>Voice Picking:</strong> Instruções auditivas via headset, mantendo mãos e olhos livres para a operação.</div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 shrink-0" />
-                  <div><strong>Pick-to-Light:</strong> Luzes nos módulos de prateleira indicam exatamente a posição e a quantidade a retirar.</div>
-                </li>
-              </ul>
+              <h3 className="font-bold text-base mb-2">Tecnologias de Coleta e Bipagem</h3>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="coletor" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0" />
+                      Coletor RF
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Dispositivo móvel com leitor laser de código de barras (EAN). Valida produto e endereço em tempo real.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="voice" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0" />
+                      Voice Picking
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Instruções auditivas via headset, mantendo mãos e olhos livres para a operação.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="pick-to-light" className="border-none">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0" />
+                      Pick-to-Light
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Luzes nos módulos de prateleira indicam exatamente a posição e a quantidade a retirar.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
 

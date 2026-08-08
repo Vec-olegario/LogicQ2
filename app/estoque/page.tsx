@@ -16,6 +16,7 @@ import {
 import { PageShell } from "@/components/logiq/page-shell"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useEquipe } from "@/hooks/use-equipe"
 import { useTextToSpeech } from "@/hooks/use-tts"
 import { getTurnoAtivoComItens, enderecarItem } from "@/src/actions/wms"
@@ -160,15 +161,45 @@ export default function EstoquePage() {
               </div>
             </div>
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h3 className="font-bold text-base mb-4">Endereçamento Logístico 3D</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+              <h3 className="font-bold text-base mb-2">Endereçamento Logístico 3D</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 No WMS, cada produto possui um endereço único tridimensional para localização rápida:
               </p>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" /><strong>Rua (Corredor):</strong> Onde o porta-paletes está localizado no galpão.</li>
-                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" /><strong>Coluna (Vão):</strong> A posição horizontal na prateleira.</li>
-                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" /><strong>Nível (Altura):</strong> A posição vertical, do chão até o nível superior.</li>
-              </ul>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="rua" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />
+                      Rua (Corredor)
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Onde o porta-paletes está localizado no galpão, geralmente identificado por letras ou números sequenciais.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="coluna" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />
+                      Coluna (Vão)
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    A posição horizontal na prateleira. Permite saber o quão longe no corredor o produto foi alocado.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="nivel" className="border-none">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />
+                      Nível (Altura)
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    A posição vertical, do chão até o nível superior. Produtos pesados ficam nos níveis mais baixos e leves no alto.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
 

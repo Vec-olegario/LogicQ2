@@ -15,6 +15,7 @@ import {
 import { PageShell } from "@/components/logiq/page-shell"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useEquipe } from "@/hooks/use-equipe"
 import { useTextToSpeech } from "@/hooks/use-tts"
 import { getTurnoAtivoComItens, expedirItem } from "@/src/actions/wms"
@@ -140,21 +141,42 @@ export default function ExpedicaoPage() {
               </div>
             </div>
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h3 className="font-bold text-base mb-4">Etapas do Despacho de Cargas</h3>
-              <ul className="space-y-3 text-xs text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-violet-500 rounded-full mt-1.5 shrink-0" />
-                  <div><strong>Unitização:</strong> Paletização e aplicação de filme stretch nos volumes para garantir estabilidade durante o transporte.</div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-violet-500 rounded-full mt-1.5 shrink-0" />
-                  <div><strong>Romaneio de Embarque:</strong> Listagem oficial de conferência das caixas que sobem no baú da transportadora.</div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-violet-500 rounded-full mt-1.5 shrink-0" />
-                  <div><strong>Lacre de Segurança:</strong> Lacre numerado aplicado nas portas do caminhão após a conclusão do carregamento nas docas.</div>
-                </li>
-              </ul>
+              <h3 className="font-bold text-base mb-2">Etapas do Despacho de Cargas</h3>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="unitizacao" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-violet-500 rounded-full shrink-0" />
+                      Unitização
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Paletização e aplicação de filme stretch nos volumes para garantir estabilidade durante o transporte.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="romaneio" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-violet-500 rounded-full shrink-0" />
+                      Romaneio de Embarque
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Listagem oficial de conferência das caixas que sobem no baú da transportadora.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="lacre" className="border-none">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-violet-500 rounded-full shrink-0" />
+                      Lacre de Segurança
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Lacre numerado aplicado nas portas do caminhão após a conclusão do carregamento nas docas.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
 
