@@ -42,6 +42,12 @@ export function ChatbotAtlas() {
     scrollToBottom();
   }, [messages, isLoading, isOpen]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("chatbotStateChange", { detail: isOpen }));
+    }
+  }, [isOpen]);
+
   const enviarMensagem = async (texto: string) => {
     if (!texto.trim() || isLoading) return;
 

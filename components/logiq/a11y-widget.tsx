@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Accessibility, Type, Eye, Brain, X, TypeIcon } from "lucide-react"
 import { useA11y } from "@/contexts/a11y-context"
 import { motion, AnimatePresence } from "framer-motion"
@@ -22,8 +22,16 @@ export function A11yWidget() {
     else setFontSize("normal")
   }
 
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false)
+
+  useEffect(() => {
+    const handleChatbot = (e: any) => setIsChatbotOpen(e.detail)
+    window.addEventListener("chatbotStateChange", handleChatbot)
+    return () => window.removeEventListener("chatbotStateChange", handleChatbot)
+  }, [])
+
   return (
-    <div className="fixed bottom-24 right-6 z-[9999] flex flex-col items-end gap-3">
+    <div className={`fixed right-6 z-[9999] flex flex-col items-end gap-3 transition-all duration-300 ${isChatbotOpen ? 'bottom-[580px]' : 'bottom-24'}`}>
       <AnimatePresence>
         {open && (
           <motion.div
