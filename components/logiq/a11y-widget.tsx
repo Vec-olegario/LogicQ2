@@ -82,21 +82,7 @@ export function A11yWidget() {
               </div>
             </button>
 
-            <button
-              onClick={() => setDyslexiaFont(!dyslexiaFont)}
-              className={`flex items-center justify-between w-full p-2.5 rounded-xl text-sm font-medium transition-colors ${
-                dyslexiaFont ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "hover:bg-muted"
-              }`}
-              aria-pressed={dyslexiaFont}
-            >
-              <div className="flex items-center gap-2">
-                <Brain size={16} className={dyslexiaFont ? "text-emerald-500" : "text-emerald-500"} />
-                <span>Fonte Dislexia</span>
-              </div>
-              <div className={`w-8 h-4 rounded-full relative transition-colors ${dyslexiaFont ? "bg-emerald-500" : "bg-muted-foreground/30"}`}>
-                <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${dyslexiaFont ? "translate-x-4" : ""}`} />
-              </div>
-            </button>
+
           </motion.div>
         )}
       </AnimatePresence>

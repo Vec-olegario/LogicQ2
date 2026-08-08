@@ -1,10 +1,4 @@
-@import url('https://fonts.cdnfonts.com/css/opendyslexic');
 @import 'tailwindcss';
-
-.font-dyslexic * {
-  font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
-  letter-spacing: 0.05em !important;
-}
 
 html.high-contrast, .high-contrast {
   /* Alto Contraste WCAG - Fundo Super Escuro, Textos de Alto Destaque (Amarelo/Branco), Bordas Claras */
