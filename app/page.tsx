@@ -13,6 +13,7 @@ import {
   BarChart3,
   Globe,
   ShieldAlert,
+  HelpCircle,
 } from "lucide-react"
 import { Topbar } from "@/components/logiq/topbar"
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect"
@@ -133,7 +134,7 @@ export default function HomePage() {
             maskImage: "radial-gradient(ellipse 80% 80% at 50% 0%, black 20%, transparent 100%)",
           }} />
 
-          <div className="relative mx-auto w-full max-w-7xl px-4 pt-6 pb-10 sm:px-6 sm:pt-8 sm:pb-12 md:grid md:grid-cols-[1.4fr_0.6fr] md:items-center md:gap-8 lg:px-8 lg:pt-10 lg:pb-14">
+          <div className="relative mx-auto w-full max-w-7xl px-4 pt-6 pb-6 sm:px-6 sm:pt-8 sm:pb-8 md:grid md:grid-cols-[1.4fr_0.6fr] md:items-center md:gap-8 lg:px-8 lg:pt-8 lg:pb-8">
             {/* Left: Text + CTAs */}
             <div className="w-full text-left">
               {/* Top badge */}
@@ -194,8 +195,8 @@ export default function HomePage() {
 
 
         {/* Features grid */}
-        <section className="max-w-[1280px] mx-auto px-6 pt-16 pb-16">
-          <div className="mb-10">
+        <section className="max-w-[1280px] mx-auto px-6 pt-8 pb-12">
+          <div className="mb-6">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Fluxo Logístico</p>
             <h2 className="text-2xl font-bold text-foreground tracking-tight">
               Os 4 setores da <span className="text-primary">Armazenagem</span>
@@ -209,13 +210,14 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Gestao do turno row */}
+        {/* Gestao do turno row + Quiz */}
         <section className="max-w-[1280px] mx-auto px-6 pb-20">
           <div className="divider mb-10" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { href: "/dashboard", icon: BarChart3, label: "Dashboard", desc: "Monitore os KPIs e a performance do turno atual.", color: "text-indigo-500", blobColor: "#6366f1" },
               { href: "/equipe", icon: Users, label: "Sua Equipe", desc: "Gerencie os membros e a lotação dos slots.", color: "text-amber-500", blobColor: "#f59e0b" },
+              { href: "/quiz", icon: HelpCircle, label: "Quiz Logístico", desc: "Teste seus conhecimentos em 32 perguntas interativas.", color: "text-emerald-500", blobColor: "#10b981" },
             ].map((item) => {
               const Icon = item.icon
               return (

@@ -9,11 +9,47 @@ import {
   ArrowRight,
   Loader2,
   Package,
+  ShieldAlert,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { useEquipe } from "@/hooks/use-equipe"
 import { getTurnoAtivoComItens, expedirItem } from "@/src/actions/wms"
 import type { Item } from "@prisma/client"
+
+const conceitosDidaticos = [
+  {
+    titulo: "OTIF (On-Time In-Full)",
+    conteudo: "O indicador de ouro da logística. Mede se as entregas foram feitas rigorosamente no prazo (On-Time) e sem faltas ou avarias (In-Full).",
+    icon: PackageCheck,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    border: "border-violet-200",
+  },
+  {
+    titulo: "TMS (Transportation Management)",
+    conteudo: "Sistema focado no transporte externo. Cuida de roteirização inteligente de frotas, cálculo de fretes e rastreamento em tempo real.",
+    icon: Truck,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+  },
+  {
+    titulo: "Comprovante POD (Proof of Delivery)",
+    conteudo: "Documento assinado pelo destinatário ao receber a carga. Encerra legalmente a responsabilidade da transportadora.",
+    icon: CheckCircle2,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+  },
+  {
+    titulo: "Gerenciamento de Risco (GRIS) no Brasil",
+    conteudo: "Devido aos custos de sinistros e roubos nas estradas brasileiras, a expedição exige regras rígidas de telemetria, rastreamento via satélite, escolta armada e gerenciamento de risco.",
+    icon: ShieldAlert,
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+  },
+]
 
 export default function ExpedicaoPage() {
   const { equipeId, isLoaded } = useEquipe()
@@ -97,20 +133,39 @@ export default function ExpedicaoPage() {
                 ></iframe>
               </div>
             </div>
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h3 className="font-bold text-base mb-4">Etapas do Despacho de Cargas</h3>
+              <ul className="space-y-3 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-violet-500 rounded-full mt-1.5 shrink-0" />
+                  <div><strong>Unitização:</strong> Paletização e aplicação de filme stretch nos volumes para garantir estabilidade durante o transporte.</div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-violet-500 rounded-full mt-1.5 shrink-0" />
+                  <div><strong>Romaneio de Embarque:</strong> Listagem oficial de conferência das caixas que sobem no baú da transportadora.</div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-violet-500 rounded-full mt-1.5 shrink-0" />
+                  <div><strong>Lacre de Segurança:</strong> Lacre numerado aplicado nas portas do caminhão após a conclusão do carregamento nas docas.</div>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="p-5 rounded-3xl border border-violet-200 bg-violet-50 shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <PackageCheck size={16} className="text-violet-600" />
-                <h4 className="font-bold text-sm text-foreground">Metas e KPIs da Expedição</h4>
-              </div>
-              <ul className="space-y-3 text-xs text-muted-foreground">
-                <li><strong>OTIF (On-Time In-Full):</strong> O indicador mais importante. Mede a porcentagem de entregas feitas no prazo contratado e com a quantidade/qualidade corretas.</li>
-                <li><strong>Tempo de Ciclo (Order Cycle Time):</strong> Tempo total desde a entrada do pedido no sistema até a saída física do caminhão.</li>
-                <li><strong>Acurácia de Expedição:</strong> Verificação contra erros de envio de produtos trocados para clientes.</li>
-              </ul>
-            </div>
+            <h3 className="font-bold text-lg">Conceitos Chave</h3>
+            {conceitosDidaticos.map((c, i) => {
+              const Icon = c.icon
+              return (
+                <div key={i} className={`p-5 rounded-3xl border ${c.border} ${c.bg} shadow-sm`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon size={16} className={c.color} />
+                    <h4 className="font-bold text-sm text-foreground">{c.titulo}</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{c.conteudo}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </PageShell>

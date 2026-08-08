@@ -12,13 +12,47 @@ import {
   ArrowRight,
   Loader2,
   AlertTriangle,
+  Globe,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { useEquipe } from "@/hooks/use-equipe"
 import { getTurnoAtivoComItens, validarPicking } from "@/src/actions/wms"
 import type { Item, Turno } from "@prisma/client"
 
-type HistoricoBipe = { ean: string; produto: string; acertou: boolean; ts: string }
+const conceitosDidaticos = [
+  {
+    titulo: "Metodologias de Picking",
+    conteudo: "• Onda (Wave): Agrupa pedidos por rotas/horários.\n• Zona (Zone): CD dividido em setores estilo linha de montagem.\n• Discreto: Um operador coleta um pedido do início ao fim.",
+    icon: Zap,
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+  },
+  {
+    titulo: "Slotting & Roteirização Interna",
+    conteudo: "O WMS gera a menor rota física dentro dos corredores para evitar que o operador perca tempo caminhando de ida e volta desnecessariamente no galpão.",
+    icon: MapPin,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+  },
+  {
+    titulo: "Acurácia de Separação",
+    conteudo: "Mede o percentual de itens coletados corretamente sem trocas. Bipe de código EAN errado penaliza a nota de acurácia da equipe.",
+    icon: CheckCircle2,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+  },
+  {
+    titulo: "E-Commerce & Same-Day no Brasil",
+    conteudo: "O avanço das compras online no Brasil forçou os CDs a operarem com picking ultra-rápido para atender metas de entrega no mesmo dia (Same-Day) em capitais.",
+    icon: Globe,
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+  },
+]
 
 export default function PickingPage() {
   const { equipeId, isLoaded } = useEquipe()
@@ -116,20 +150,39 @@ export default function PickingPage() {
                 ></iframe>
               </div>
             </div>
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h3 className="font-bold text-base mb-4">Tecnologias de Coleta e Bipagem</h3>
+              <ul className="space-y-3 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 shrink-0" />
+                  <div><strong>Coletor RF:</strong> Dispositivo móvel com leitor laser de código de barras (EAN). Valida produto e endereço em tempo real.</div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 shrink-0" />
+                  <div><strong>Voice Picking:</strong> Instruções auditivas via headset, mantendo mãos e olhos livres para a operação.</div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 shrink-0" />
+                  <div><strong>Pick-to-Light:</strong> Luzes nos módulos de prateleira indicam exatamente a posição e a quantidade a retirar.</div>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="p-5 rounded-3xl border border-amber-200 bg-amber-50 shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap size={16} className="text-amber-600" />
-                <h4 className="font-bold text-sm text-foreground">Metodologias de Picking</h4>
-              </div>
-              <ul className="space-y-3 text-xs text-muted-foreground">
-                <li><strong>Picking por Onda (Wave):</strong> Agrupamento de pedidos por rotas de entrega ou transportadoras, liberados em intervalos ao longo do turno.</li>
-                <li><strong>Picking por Zona (Zone):</strong> O CD é dividido em zonas e cada operador separa apenas os itens de sua zona, similar a uma linha de montagem.</li>
-                <li><strong>Picking Discreto:</strong> Um operador separa um único pedido por vez, do início ao fim (mais simples, porém menos produtivo em larga escala).</li>
-              </ul>
-            </div>
+            <h3 className="font-bold text-lg">Conceitos Chave</h3>
+            {conceitosDidaticos.map((c, i) => {
+              const Icon = c.icon
+              return (
+                <div key={i} className={`p-5 rounded-3xl border ${c.border} ${c.bg} shadow-sm`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon size={16} className={c.color} />
+                    <h4 className="font-bold text-sm text-foreground">{c.titulo}</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">{c.conteudo}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </PageShell>

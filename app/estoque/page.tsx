@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Loader2,
+  Globe,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { useEquipe } from "@/hooks/use-equipe"
@@ -20,7 +21,7 @@ const regrasNegocio = [
   {
     sigla: "FIFO",
     nome: "First In, First Out",
-    descricao: "O primeiro produto a entrar no estoque deve ser o primeiro a sair. Usado para produtos não-perecíveis, evita obsolescência e perdas por prazo vencido.",
+    descricao: "O primeiro produto a entrar no estoque deve ser o primeiro a sair. Evita obsolescência e perdas por prazo vencido.",
     exemplo: "Caixa de sabão recebida em Jan/25 sai antes da caixa de Fev/25.",
     icon: RotateCcw,
     color: "text-blue-600",
@@ -30,12 +31,42 @@ const regrasNegocio = [
   {
     sigla: "FEFO",
     nome: "First Expired, First Out",
-    descricao: "O produto com a data de validade mais próxima deve sair primeiro, independente da data de entrada. Obrigatório para alimentos, medicamentos e cosméticos.",
-    exemplo: "Iogurte com validade 15/03 sai antes do iogurte com validade 30/03.",
+    descricao: "O produto com validade mais próxima sai primeiro, independente da entrada. Obrigatório para alimentos e medicamentos.",
+    exemplo: "Iogurte com vencimento em 15/03 sai antes do que vence em 30/03.",
     icon: Calendar,
     color: "text-amber-600",
     bg: "bg-amber-50",
     border: "border-amber-200",
+  },
+  {
+    sigla: "Curva ABC",
+    nome: "Classificação por Giro",
+    descricao: "Classe A (alta demanda) fica perto da expedição. Classe B fica no meio. Classe C (baixo giro) fica no fundo.",
+    exemplo: "20% dos itens representam 80% das saídas do CD.",
+    icon: Package,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    border: "border-violet-200",
+  },
+  {
+    sigla: "LIFO / UEPS",
+    nome: "Last In, First Out",
+    descricao: "O último produto a entrar é o primeiro a sair. Usado apenas em materiais homogêneos sem validade (ex: brita, carvão).",
+    exemplo: "Blocos de construção empilhados em granel.",
+    icon: MapPin,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+  },
+  {
+    sigla: "Brasil",
+    nome: "Hubs de Armazenagem & Custo Brasil",
+    descricao: "O raio de 100km de SP concentra a maior área de condomínios logísticos do país. A complexidade do ICMS exige CDs estratégicos em múltiplos estados.",
+    exemplo: "Polos logísticos em Extrema (MG), Cajamar (SP) e Duque de Caxias (RJ).",
+    icon: Globe,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+    border: "border-cyan-200",
   },
 ]
 
@@ -122,10 +153,21 @@ export default function EstoquePage() {
                 ></iframe>
               </div>
             </div>
+            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
+              <h3 className="font-bold text-base mb-4">Endereçamento Logístico 3D</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                No WMS, cada produto possui um endereço único tridimensional para localização rápida:
+              </p>
+              <ul className="space-y-2 text-xs text-muted-foreground">
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" /><strong>Rua (Corredor):</strong> Onde o porta-paletes está localizado no galpão.</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" /><strong>Coluna (Vão):</strong> A posição horizontal na prateleira.</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" /><strong>Nível (Altura):</strong> A posição vertical, do chão até o nível superior.</li>
+              </ul>
+            </div>
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <h3 className="font-bold text-lg">Regras de Giro de Estoque</h3>
+            <h3 className="font-bold text-lg">Regras e Estratégias de Giro</h3>
             {regrasNegocio.map((r, i) => {
               const Icon = r.icon
               return (

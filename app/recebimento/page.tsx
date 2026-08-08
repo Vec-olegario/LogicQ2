@@ -14,6 +14,7 @@ import {
   BookOpen,
   Plus,
   Loader2,
+  Globe,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { useEquipe } from "@/hooks/use-equipe"
@@ -45,6 +46,14 @@ const conceitosDidaticos = [
     color: "text-amber-600",
     bg: "bg-amber-50",
     border: "border-amber-200",
+  },
+  {
+    titulo: "Logística no Brasil — Modal Rodoviário",
+    conteudo: "No Brasil, mais de 65% das cargas dependem do modal rodoviário. A integração digital de recebimento via NF-e com a SEFAZ torna o sistema brasileiro um dos mais avançados em auditoria fiscal.",
+    icon: Globe,
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    border: "border-indigo-200",
   },
 ]
 

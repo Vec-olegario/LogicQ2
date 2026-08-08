@@ -1,10 +1,23 @@
-export const maxDuration = 10; // Reduzido já que não tem chamadas lentas de IA
+/**
+ * Base de Conhecimento para o Chatbot Atlas - Plataforma LogiQ
+ * 
+ * Este arquivo contém as regras de resposta baseadas em expressões regulares (Regex)
+ * mapeando termos teóricos e práticos da plataforma LogiQ, incluindo os 4 pilares
+ * (Recebimento, Estoque, Picking, Expedição), ferramentas do sistema (Dashboard, Quiz, Equipes)
+ * e metodologias cruciais (5S, Diagrama de Pareto, Curva ABC).
+ * 
+ * Formato compatível com o arquivo app/api/chat/route.ts.
+ */
 
-// --- BASE DE CONHECIMENTO DO BOT (Regras) ---
-const knowledgeBase = [
+interface ChatRule {
+  keywords: RegExp;
+  response: string;
+}
+
+export const knowledgeBase: ChatRule[] = [
   // 1. DÚVIDAS GERAIS & SAUDAÇÕES
   {
-    keywords: /\b(oi|ola|olá|bom dia|boa tarde|boa noite|ola atlas|oi atlas|ajuda|help)\b/i,
+    keywords: /\\b(oi|ola|olá|bom dia|boa tarde|boa noite|ola atlas|oi atlas|ajuda|help)\\b/i,
     response: "Olá! Eu sou o **Atlas**, seu assistente virtual de inteligência logística aqui no **LogiQ**. 🤖\n\nEstou aqui para tirar suas dúvidas sobre a plataforma, o funcionamento dos turnos e os principais conceitos teóricos de logística (como **5S**, **Curva ABC**, **FIFO**, **OTIF** e muito mais) enquanto você simula!\n\nComo posso ajudar na sua operação hoje?"
   },
   {
@@ -118,44 +131,5 @@ const knowledgeBase = [
   {
     keywords: /(quiz|perguntas do quiz|modos do quiz|modo rapido|modo padrao|modo completo)/i,
     response: "O **Quiz Logístico** é a ferramenta ideal para consolidar seus conhecimentos e fixar as teorias estudadas! 🧠🎯\n\n- **Os Modos**: Você pode jogar no modo **Rápido (5 perguntas)**, **Padrão (15 perguntas)** ou **Completo (todas as 32 perguntas complexas)**.\n- **Relatório de Desempenho**: Ao final de cada partida, o sistema analisa os seus erros e acertos de forma inteligente e divide os resultados setor por setor (Recebimento, Estoque, Picking e Expedição), apontando exatamente qual área você precisa estudar mais nas videoaulas integradas!"
-  },
-
-  // 8. LOGÍSTICA NO BRASIL
-  {
-    keywords: /(brasil|logistica no brasil|logística no brasil|modal rodoviario|modal rodoviário|infraestrutura brasileira)/i,
-    response: "A **Logística no Brasil** possui características e desafios marcantes: 🇧🇷🚚\n\n- **Predominância Rodoviária**: Mais de 65% do transporte de cargas no país é feito por rodovias.\n- **Pioneirismo Digital (NF-e)**: O Brasil é referência global em auditoria fiscal digital com a integração da Nota Fiscal Eletrônica e sistemas da SEFAZ.\n- **Polos Logísticos**: A maior concentração de condomínios logísticos de classe AAA fica no raio de 100km da Grande São Paulo e em polos tributários estratégicos como Extrema (MG) e Duque de Caxias (RJ).\n- **Gerenciamento de Risco (GRIS)**: Devido aos custos de sinistros, o país possui rígidos controles de telemetria, rastreamento via satélite e escolta armada."
   }
 ];
-
-// Resposta padrão (Fallback)
-const defaultResponse = "🤖 Desculpe, não encontrei essa informação na minha base de regras. Sou o assistente Atlas, programado para ajudar com termos logísticos do sistema LogiQ.\n\nTente me perguntar sobre: **WMS, 5S, Curva ABC, Picking, Recebimento, Expedição ou OTIF**!";
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const messages = body.messages || [];
-    
-    if (messages.length === 0) {
-      return Response.json({ response: "Nenhuma mensagem recebida." });
-    }
-
-    // Pega a última mensagem (que é a mensagem do usuário)
-    const ultimaMensagem = messages[messages.length - 1];
-    const userText = ultimaMensagem.content;
-
-    // Lógica do Cérebro (Rule-Based)
-    let botReply = defaultResponse;
-    for (let rule of knowledgeBase) {
-      if (rule.keywords.test(userText)) {
-        botReply = rule.response;
-        break; // Para no primeiro match
-      }
-    }
-
-    return Response.json({ response: botReply });
-    
-  } catch (error) {
-    console.error("Erro na API Chat:", error);
-    return Response.json({ response: "Ocorreu um erro no processamento da mensagem." }, { status: 500 });
-  }
-}
