@@ -114,11 +114,11 @@ export default function ExpedicaoPage() {
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
-            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            <div className="glass rounded-2xl p-4 border border-border shadow-sm">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-2.5">
                 A Expedição é a etapa final do armazém, onde os pedidos separados são consolidados, conferidos e direcionados à doca de saída correta. Uma operação ágil garante a saída pontual da carga, otimizando o indicador <strong>OTIF (On-Time In-Full)</strong> e a satisfação do cliente final.
               </p>
-              <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
+              <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
                 <iframe
                   className="w-full h-full"
                   src="https://www.youtube.com/embed/dQw4w9WgXcQ"

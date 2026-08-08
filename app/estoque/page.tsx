@@ -134,11 +134,11 @@ export default function EstoquePage() {
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
-            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            <div className="glass rounded-2xl p-4 border border-border shadow-sm">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-2.5">
                 O Estoque é o coração do CD, responsável por alocar os produtos nos endereços corretos (rua, nível e coluna), maximizando o espaço vertical e agilizando o picking. A correta aplicação de regras como FIFO e FEFO minimiza o desperdício de itens perecíveis.
               </p>
-              <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
+              <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
                 <iframe
                   className="w-full h-full"
                   src="https://www.youtube.com/embed/dQw4w9WgXcQ"

@@ -133,11 +133,11 @@ export default function PickingPage() {
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
-            <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            <div className="glass rounded-2xl p-4 border border-border shadow-sm">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-2.5">
                 O Picking é a separação física dos produtos para atender aos pedidos. Sendo a etapa mais cara do CD, otimizar a rota de separação é vital. O uso de coletores de radiofrequência (RF) ou comandos de voz garante precisão no bipe e minimiza os erros de envio.
               </p>
-              <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
+              <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
                 <iframe
                   className="w-full h-full"
                   src="https://www.youtube.com/embed/dQw4w9WgXcQ"
