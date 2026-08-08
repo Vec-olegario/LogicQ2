@@ -13,6 +13,8 @@ import {
   Globe,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
+import { BackgroundGradient } from "@/components/ui/background-gradient"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEquipe } from "@/hooks/use-equipe"
 import { getTurnoAtivoComItens, enderecarItem } from "@/src/actions/wms"
 import type { Item } from "@prisma/client"
@@ -167,14 +169,23 @@ export default function EstoquePage() {
             {regrasNegocio.map((r, i) => {
               const Icon = r.icon
               return (
-                <div key={i} className={`p-5 rounded-3xl border ${r.border} ${r.bg} shadow-sm`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon size={16} className={r.color} />
-                    <h4 className="font-bold text-sm text-foreground">{r.sigla} - {r.nome}</h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed mb-2">{r.descricao}</p>
-                  <p className="text-[10px] font-bold text-foreground">Exemplo: {r.exemplo}</p>
-                </div>
+                <BackgroundGradient 
+                  key={i}
+                  className="rounded-[22px] bg-transparent hover:scale-105 transition-transform duration-300"
+                >
+                  <Card className={`flex flex-col h-full rounded-[20px] border ${r.border} ${r.bg} shadow-sm`}>
+                    <CardHeader className="p-5 pb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon size={16} className={r.color} />
+                        <CardTitle className="font-bold text-sm text-foreground">{r.sigla} - {r.nome}</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-5 pt-0">
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-2">{r.descricao}</p>
+                      <p className="text-[10px] font-bold text-foreground">Exemplo: {r.exemplo}</p>
+                    </CardContent>
+                  </Card>
+                </BackgroundGradient>
               )
             })}
           </div>

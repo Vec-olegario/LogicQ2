@@ -15,6 +15,8 @@ import {
   Globe,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
+import { BackgroundGradient } from "@/components/ui/background-gradient"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEquipe } from "@/hooks/use-equipe"
 import { getTurnoAtivoComItens, validarPicking } from "@/src/actions/wms"
 import type { Item, Turno } from "@prisma/client"
@@ -172,13 +174,22 @@ export default function PickingPage() {
             {conceitosDidaticos.map((c, i) => {
               const Icon = c.icon
               return (
-                <div key={i} className={`p-5 rounded-3xl border ${c.border} ${c.bg} shadow-sm`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon size={16} className={c.color} />
-                    <h4 className="font-bold text-sm text-foreground">{c.titulo}</h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">{c.conteudo}</p>
-                </div>
+                <BackgroundGradient 
+                  key={i}
+                  className="rounded-[22px] bg-transparent hover:scale-105 transition-transform duration-300"
+                >
+                  <Card className={`flex flex-col h-full rounded-[20px] border ${c.border} ${c.bg} shadow-sm`}>
+                    <CardHeader className="p-5 pb-2">
+                      <div className="flex items-center gap-2">
+                        <Icon size={16} className={c.color} />
+                        <CardTitle className="font-bold text-sm text-foreground">{c.titulo}</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-5 pt-0">
+                      <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">{c.conteudo}</p>
+                    </CardContent>
+                  </Card>
+                </BackgroundGradient>
               )
             })}
           </div>

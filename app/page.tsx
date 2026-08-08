@@ -18,8 +18,6 @@ import {
 import { Topbar } from "@/components/logiq/topbar"
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect"
 import { NoiseBackground } from "@/components/ui/noise-background"
-import { BackgroundGradient } from "@/components/ui/background-gradient"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const heroLine1 = [
   { text: "Gerencie" },
@@ -71,36 +69,49 @@ const features = [
 ]
 
 function SectorFeatureCard({ feat }: { feat: (typeof features)[number] }) {
+  const [isHovered, setIsHovered] = useState(false)
   const Icon = feat.icon
+
+  // Intense Palette on Hover: Vibrant Stripe Blue + Indigo + Violet blend
+  const stripeColors = [
+    "rgb(37, 99, 235)",   // Intense Royal Blue
+    "rgb(79, 70, 229)",   // Intense Indigo
+    "rgb(124, 58, 237)",  // Intense Deep Violet
+  ]
 
   return (
     <Link
       href={feat.href}
-      className="group block h-full min-h-[260px] outline-none"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="group block h-full min-h-[260px]"
     >
-      <BackgroundGradient 
-        className="rounded-[22px] p-1 h-full bg-transparent hover:scale-105 transition-transform duration-300"
-        containerClassName="h-full"
+      <NoiseBackground
+        gradientColors={isHovered ? stripeColors : feat.defaultGradient}
+        noiseIntensity={isHovered ? 0.25 : 0.15}
+        speed={isHovered ? 0.25 : 0.12}
+        containerClassName="h-full rounded-2xl p-1 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-2xl"
+        className="h-full"
       >
-        <Card className="flex flex-col justify-between h-full rounded-[20px] bg-card/90 border-border/40 backdrop-blur-md group-hover:bg-card/70 group-hover:border-primary/50 transition-all duration-300 shadow-sm group-hover:shadow-inner border-0">
-          <CardHeader className="p-5 pb-0">
+        <div
+          className={`flex h-full flex-col justify-between rounded-xl p-5 text-card-foreground backdrop-blur-md transition-all duration-300 border ${
+            isHovered
+              ? "bg-card/70 border-primary/50 shadow-inner"
+              : "bg-card/90 border-border/40"
+          }`}
+        >
+          <div>
             <div className={`w-10 h-10 rounded-lg stripe-card flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 ${feat.color}`}>
               <Icon size={18} />
             </div>
-            <CardTitle className="text-base font-semibold text-foreground mb-1.5">
-              {feat.label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-5 pt-0">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {feat.desc}
-            </p>
-            <div className={`flex items-center gap-1 mt-6 text-xs font-semibold ${feat.color} group-hover:text-primary group-hover:translate-x-1.5 transition-all duration-200`}>
-              Acessar módulo <ArrowRight size={12} />
-            </div>
-          </CardContent>
-        </Card>
-      </BackgroundGradient>
+            <h3 className="text-base font-semibold text-foreground mb-1.5">{feat.label}</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">{feat.desc}</p>
+          </div>
+          <div className={`flex items-center gap-1 mt-6 text-xs font-semibold ${feat.color} group-hover:text-primary group-hover:translate-x-1.5 transition-all duration-200`}>
+            Acessar módulo <ArrowRight size={12} />
+          </div>
+        </div>
+      </NoiseBackground>
     </Link>
   )
 }
