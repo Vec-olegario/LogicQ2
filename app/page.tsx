@@ -195,7 +195,7 @@ export default function HomePage() {
 
 
         {/* Features grid */}
-        <section className="max-w-[1280px] mx-auto px-6 pt-8 pb-12">
+        <section className="max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 pt-8 pb-12">
           <div className="mb-6">
             <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Fluxo Logístico</p>
             <h2 className="text-2xl font-bold text-foreground tracking-tight">
@@ -211,7 +211,7 @@ export default function HomePage() {
         </section>
 
         {/* Gestao do turno row + Quiz */}
-        <section className="max-w-[1280px] mx-auto px-6 pb-20">
+        <section className="max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 pb-20">
           <div className="divider mb-10" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
