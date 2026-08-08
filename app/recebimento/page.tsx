@@ -58,7 +58,7 @@ const conceitosDidaticos = [
 ]
 
 export default function RecebimentoPage() {
-  const { equipeId, isLoaded } = useEquipe()
+  const { equipeId, usuarioId, isLoaded } = useEquipe()
   const [openConceito, setOpenConceito] = useState<number | null>(null)
   
   // Real DB state
@@ -111,7 +111,7 @@ export default function RecebimentoPage() {
       descricao,
       quantidade,
       fornecedor,
-    })
+    }, usuarioId!)
 
     if (res.sucesso) {
       setSucessoMsg(`Item "${descricao}" registrado com sucesso!`)
@@ -140,12 +140,8 @@ export default function RecebimentoPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h2 className="text-xl font-bold mb-4">O Setor de Recebimento</h2>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                O Recebimento é a porta de entrada de qualquer Centro de Distribuição (CD). É o processo responsável por receber fisicamente as mercadorias enviadas pelos fornecedores, conferindo se os itens físicos correspondem exatamente ao que consta na Nota Fiscal Eletrônica (NF-e).
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                Uma falha nesta etapa — como aceitar produtos com validade expirada, quantidades incorretas ou itens avariados — propaga o erro por todo o fluxo de estoque e picking, gerando furos graves de inventário.
+                O Recebimento é a porta de entrada do Centro de Distribuição, onde ocorre a recepção e a conferência física das mercadorias contra a Nota Fiscal Eletrônica (NF-e). Falhas aqui propagam erros graves de inventário por todo o armazém.
               </p>
               <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
                 <iframe

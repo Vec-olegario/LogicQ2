@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useTransition } from "react"
-import { Users, Trash2, CalendarDays, Target } from "lucide-react"
+import { Users, Trash2, CalendarDays, Target, StopCircle, UserCircle2, Crown, Activity } from "lucide-react"
 import { getTodasEquipes, deletarEquipeAdmin } from "@/src/actions/auth"
+import { encerrarTurnoAdmin } from "@/src/actions/wms"
 import { useAdminAuth } from "./layout"
 
 export default function AdminPage() {
@@ -21,6 +22,21 @@ export default function AdminPage() {
         if (getRes.sucesso) setEquipes(getRes.dados)
       } else {
         setErroMsg(res.erro || "Erro ao deletar")
+      }
+    })
+  }
+
+  const handlePararTurno = async (id: string, nome: string) => {
+    if (!confirm(`Deseja encerrar o turno ATIVO da equipe "${nome}"?`)) return;
+    
+    setErroMsg(null)
+    startTransition(async () => {
+      const res = await encerrarTurnoAdmin(senhaAdmin, id)
+      if (res.sucesso) {
+        const getRes = await getTodasEquipes(senhaAdmin)
+        if (getRes.sucesso) setEquipes(getRes.dados)
+      } else {
+        setErroMsg(res.erro || "Erro ao encerrar turno")
       }
     })
   }
@@ -66,21 +82,56 @@ export default function AdminPage() {
                 
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   <div className="bg-white border border-border rounded-xl p-3">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                      <Users size={12} /> Alunos
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <Users size={12} /> Alunos ({equipe.usuarios?.length || 0})
+                      </div>
                     </div>
-                    <p className="text-xl font-bold text-foreground">{equipe._count.usuarios}</p>
+                    <div className="mt-2 space-y-1">
+                      {equipe.usuarios?.length > 0 ? (
+                        equipe.usuarios.map((u: any) => (
+                          <div key={u.id} className="text-xs flex items-center gap-1.5 text-foreground">
+                            {u.isLider ? <Crown size={12} className="text-violet-500" /> : <UserCircle2 size={12} className="text-muted-foreground" />}
+                            <span className={u.isLider ? "font-semibold" : ""}>{u.nome}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">Vazia</p>
+                      )}
+                    </div>
                   </div>
+
                   <div className="bg-white border border-border rounded-xl p-3">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                      <Target size={12} /> Turnos
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <Activity size={12} /> Turno
+                      </div>
                     </div>
-                    <p className="text-xl font-bold text-foreground">{equipe._count.turnos}</p>
+                    {equipe.turnos && equipe.turnos.length > 0 ? (
+                      <div className="mt-2">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 text-emerald-600 text-xs font-semibold">
+                          <span className="status-dot bg-emerald-500" /> Em andamento
+                        </span>
+                        <div className="mt-2 flex items-center gap-3">
+                          <div className="text-xs text-muted-foreground">Vol: <span className="font-bold text-foreground">{equipe.turnos[0].metaVolume}</span></div>
+                          <div className="text-xs text-muted-foreground">SLA: <span className="font-bold text-foreground">{equipe.turnos[0].tempoSLA}m</span></div>
+                        </div>
+                        <button
+                          onClick={() => handlePararTurno(equipe.id, equipe.nome)}
+                          disabled={isPending}
+                          className="mt-3 w-full flex items-center justify-center gap-1 py-1.5 rounded-lg bg-orange-50 text-orange-600 text-xs font-semibold hover:bg-orange-100 transition-colors disabled:opacity-50"
+                        >
+                          <StopCircle size={14} /> Parar Turno
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-xs text-muted-foreground italic">Nenhum turno ativo.</div>
+                    )}
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium border-t border-border pt-3">
                 <CalendarDays size={10} /> 
                 Criada em {new Date(equipe.criadoEm).toLocaleDateString('pt-BR')}
               </div>

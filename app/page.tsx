@@ -134,7 +134,7 @@ export default function HomePage() {
             maskImage: "radial-gradient(ellipse 80% 80% at 50% 0%, black 20%, transparent 100%)",
           }} />
 
-          <div className="relative mx-auto w-full max-w-7xl px-4 pt-6 pb-6 sm:px-6 sm:pt-8 sm:pb-8 md:grid md:grid-cols-[1.4fr_0.6fr] md:items-center md:gap-8 lg:px-8 lg:pt-8 lg:pb-8">
+          <div className="relative mx-auto w-full max-w-7xl px-4 pt-2 pb-6 sm:px-6 sm:pt-3 sm:pb-8 md:grid md:grid-cols-[1.4fr_0.6fr] md:items-center md:gap-8 lg:px-8 lg:pt-3 lg:pb-8">
             {/* Left: Text + CTAs */}
             <div className="w-full text-left">
               {/* Top badge */}

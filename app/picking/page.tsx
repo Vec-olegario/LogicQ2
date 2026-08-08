@@ -55,7 +55,7 @@ const conceitosDidaticos = [
 ]
 
 export default function PickingPage() {
-  const { equipeId, isLoaded } = useEquipe()
+  const { equipeId, usuarioId, isLoaded } = useEquipe()
   const [itens, setItens] = useState<Item[]>([])
   const [turno, setTurno] = useState<Turno | null>(null)
   const [loading, setLoading] = useState(true)
@@ -100,10 +100,12 @@ export default function PickingPage() {
     setFeedback(null)
 
     const ts = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-    const res = await validarPicking(currentItem.id, currentItem.codigo, eanInput.trim())
+    const res = await validarPicking(currentItem.id, eanInput.trim(), usuarioId!)
 
     if (res.sucesso) {
-      const acertou = res.dados?.acertou ?? false
+      // Se o item avançou para SEPARADO, o bipe foi correto
+      const acertou = res.dados?.status === "SEPARADO"
+      
       if (acertou) {
         setFeedback({ ok: true, msg: `Correto! ${currentItem.descricao} bipado com sucesso.` })
         setHistorico((prev) => [{ ean: eanInput.trim(), produto: currentItem.descricao, acertou: true, ts }, ...prev.slice(0, 9)])
@@ -114,7 +116,7 @@ export default function PickingPage() {
       setEanInput("")
       await carregarDados()
     } else {
-      setFeedback({ ok: false, msg: res.erro })
+      setFeedback({ ok: false, msg: res.erro || "Erro na validação." })
     }
 
     setSubmitting(false)
@@ -132,12 +134,8 @@ export default function PickingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h2 className="text-xl font-bold mb-4">O Setor de Picking (Separação)</h2>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                O Picking consiste na separação física dos produtos armazenados para atender aos pedidos dos clientes. É a etapa mais cara e que consome mais tempo em um CD, sendo crucial otimizar a rota de separação para minimizar deslocamentos desnecessários dos operadores.
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                O uso de coletores de radiofrequência (RF) ou sistemas guiados por luz (Pick-to-Light) e voz (Voice Picking) garante precisão quase absoluta de bipe, reduzindo significativamente erros de envio.
+                O Picking é a separação física dos produtos para atender aos pedidos. Sendo a etapa mais cara do CD, otimizar a rota de separação é vital. O uso de coletores de radiofrequência (RF) ou comandos de voz garante precisão no bipe e minimiza os erros de envio.
               </p>
               <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
                 <iframe

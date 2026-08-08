@@ -71,7 +71,7 @@ const regrasNegocio = [
 ]
 
 export default function EstoquePage() {
-  const { equipeId, isLoaded } = useEquipe()
+  const { equipeId, usuarioId, isLoaded } = useEquipe()
   
   const [itens, setItens] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
@@ -109,7 +109,7 @@ export default function EstoquePage() {
     setErro(null)
     setSucessoMsg(null)
 
-    const res = await enderecarItem(itemId, posicao)
+    const res = await enderecarItem(itemId, { posicao }, usuarioId!)
 
     if (res.sucesso) {
       setSucessoMsg(`Item endereçado com sucesso em "${posicao}"!`)
@@ -135,12 +135,8 @@ export default function EstoquePage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h2 className="text-xl font-bold mb-4">O Setor de Estoque e Armazenagem</h2>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                O Estoque é o coração de qualquer Centro de Distribuição. É o responsável por planejar e alocar os produtos nos endereços (rua, nível e coluna) corretos. Um bom armazenamento maximiza a utilização do espaço vertical e facilita o trabalho do picking.
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                A aplicação correta das regras operacionais (FIFO e FEFO) garante que produtos perecíveis ou de alta obsolescência girem adequadamente, minimizando desperdício de dinheiro e perdas.
+                O Estoque é o coração do CD, responsável por alocar os produtos nos endereços corretos (rua, nível e coluna), maximizando o espaço vertical e agilizando o picking. A correta aplicação de regras como FIFO e FEFO minimiza o desperdício de itens perecíveis.
               </p>
               <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
                 <iframe

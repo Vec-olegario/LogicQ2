@@ -52,7 +52,7 @@ const conceitosDidaticos = [
 ]
 
 export default function ExpedicaoPage() {
-  const { equipeId, isLoaded } = useEquipe()
+  const { equipeId, usuarioId, isLoaded } = useEquipe()
   const [itens, setItens] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [submittingId, setSubmittingId] = useState<string | null>(null)
@@ -89,7 +89,7 @@ export default function ExpedicaoPage() {
     setErro(null)
     setSucessoMsg(null)
 
-    const res = await expedirItem(itemId, docaSaida)
+    const res = await expedirItem(itemId, { docaSaida }, usuarioId!)
 
     if (res.sucesso) {
       setSucessoMsg(`Item expedido com sucesso pela "${docaSaida}"!`)
@@ -115,12 +115,8 @@ export default function ExpedicaoPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h2 className="text-xl font-bold mb-4">O Setor de Expedição</h2>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                A Expedição é a etapa final do ciclo interno de um armazém. É responsável por receber os produtos separados pelo picking, consolidar os pedidos, verificar se as notas fiscais estão coladas corretamente nas embalagens, e direcionar a carga para a doca de saída correta.
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                Uma expedição ágil e precisa garante que a transportadora receba a carga no horário combinado, otimizando o indicador **OTIF (On-Time In-Full)** e a satisfação do cliente final.
+                A Expedição é a etapa final do armazém, onde os pedidos separados são consolidados, conferidos e direcionados à doca de saída correta. Uma operação ágil garante a saída pontual da carga, otimizando o indicador <strong>OTIF (On-Time In-Full)</strong> e a satisfação do cliente final.
               </p>
               <div className="relative aspect-video rounded-2xl overflow-hidden border border-border mt-6">
                 <iframe
@@ -314,8 +310,8 @@ export default function ExpedicaoPage() {
           <CheckCircle2 size={14} className="text-violet-400" />
           <span className="text-sm text-muted-foreground">Fluxo de operação concluído com sucesso! Veja o balanço no Dashboard.</span>
         </div>
-        <a href="/dashboard-turno" className="flex items-center gap-2 text-sm font-semibold text-primary hover:opacity-90 transition-opacity">
-          Ir para Dashboard do Turno <ArrowRight size={13} />
+        <a href="/dashboard" className="flex items-center gap-2 text-sm font-semibold text-primary hover:opacity-90 transition-opacity">
+          Ir para Dashboard <ArrowRight size={13} />
         </a>
       </div>
     </PageShell>
