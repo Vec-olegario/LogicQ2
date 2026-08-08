@@ -252,7 +252,7 @@ export const NavbarLogo = ({
   return (
     <Link
       href={href}
-      className="relative z-20 flex items-center gap-2 shrink-0 group hover:opacity-90 transition-opacity"
+      className="relative z-20 flex items-center gap-2 shrink-0 group transition-all duration-300 ease-out hover:scale-[1.03] active:scale-[0.97]"
     >
       {children || (
         <>

@@ -20,6 +20,7 @@ import {
 import { PageShell } from "@/components/logiq/page-shell"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { useEquipe } from "@/hooks/use-equipe"
 import { useTextToSpeech } from "@/hooks/use-tts"
 import { getTurnoAtivoComItens, receberItem } from "@/src/actions/wms"
@@ -164,27 +165,42 @@ export default function RecebimentoPage() {
             </div>
 
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
-              <h3 className="font-bold text-base mb-4">Boas Práticas na Doca</h3>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 shrink-0" />
-                  <div>
-                    <strong>Agendamento:</strong> Programar a chegada das transportadoras para evitar filas longas e gargalos nas docas.
-                  </div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 shrink-0" />
-                  <div>
-                    <strong>Conferência Cega:</strong> Contar as caixas sem saber a quantidade exata declarada na NF-e para forçar o conferente a contar de forma precisa.
-                  </div>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 shrink-0" />
-                  <div>
-                    <strong>Triagem de Avarias:</strong> Separar produtos danificados imediatamente na entrada para devolver ao transportador no mesmo momento.
-                  </div>
-                </li>
-              </ul>
+              <h3 className="font-bold text-base mb-2">Boas Práticas na Doca</h3>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="agendamento" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />
+                      Agendamento
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Programar a chegada das transportadoras para evitar filas longas e gargalos nas docas.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="conferencia" className="border-b border-border/50">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />
+                      Conferência Cega
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Contar as caixas sem saber a quantidade exata declarada na NF-e para forçar o conferente a contar de forma precisa.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="triagem" className="border-none">
+                  <AccordionTrigger className="text-sm font-semibold hover:no-underline hover:text-primary transition-colors py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0" />
+                      Triagem de Avarias
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground pb-3 pl-3.5">
+                    Separar produtos danificados imediatamente na entrada para devolver ao transportador no mesmo momento.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
 
