@@ -4,6 +4,9 @@ import { Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { SmoothScroll } from "@/components/smooth-scroll"
 import { ChatbotAtlas } from "@/components/logiq/chatbot-atlas"
+import { A11yProvider } from "@/contexts/a11y-context"
+import { A11yWidget } from "@/components/logiq/a11y-widget"
+import { Toaster } from "sonner"
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
@@ -31,10 +34,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="bg-background">
       <body className={`${instrumentSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        <SmoothScroll>
-          {children}
-          <ChatbotAtlas />
-        </SmoothScroll>
+        <A11yProvider>
+          <SmoothScroll>
+            {children}
+            <ChatbotAtlas />
+            <A11yWidget />
+          </SmoothScroll>
+          <Toaster richColors position="top-right" />
+        </A11yProvider>
       </body>
     </html>
   )

@@ -13,13 +13,16 @@ import {
   Loader2,
   AlertTriangle,
   Globe,
+  Volume2,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEquipe } from "@/hooks/use-equipe"
+import { useTextToSpeech } from "@/hooks/use-tts"
 import { getTurnoAtivoComItens, validarPicking } from "@/src/actions/wms"
 import type { Item, Turno } from "@prisma/client"
+import { toast } from "sonner"
 
 const conceitosDidaticos = [
   {
@@ -58,6 +61,8 @@ const conceitosDidaticos = [
 
 export default function PickingPage() {
   const { equipeId, usuarioId, isLoaded } = useEquipe()
+  const { speak, isSpeaking, supported } = useTextToSpeech()
+
   const [itens, setItens] = useState<Item[]>([])
   const [turno, setTurno] = useState<Turno | null>(null)
   const [loading, setLoading] = useState(true)
@@ -65,6 +70,7 @@ export default function PickingPage() {
   const [eanInput, setEanInput] = useState("")
   const [feedback, setFeedback] = useState<null | { ok: boolean; msg: string }>(null)
   const [historico, setHistorico] = useState<HistoricoBipe[]>([])
+  const [shakeError, setShakeError] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const carregarDados = async () => {
@@ -114,11 +120,21 @@ export default function PickingPage() {
       } else {
         setFeedback({ ok: false, msg: `Código Incorreto! Esperado: ${currentItem.codigo}` })
         setHistorico((prev) => [{ ean: eanInput.trim(), produto: currentItem.descricao, acertou: false, ts }, ...prev.slice(0, 9)])
+        
+        // A11y: Feedback Visual e Tátil para erro
+        toast.error(`Código Incorreto! Esperado: ${currentItem.codigo}`)
+        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([200, 100, 200])
+        setShakeError(true)
+        setTimeout(() => setShakeError(false), 600)
       }
       setEanInput("")
       await carregarDados()
     } else {
       setFeedback({ ok: false, msg: res.erro || "Erro na validação." })
+      toast.error(res.erro || "Erro na validação.")
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([200, 100, 200])
+      setShakeError(true)
+      setTimeout(() => setShakeError(false), 600)
     }
 
     setSubmitting(false)
@@ -179,11 +195,23 @@ export default function PickingPage() {
                   className="rounded-[22px] bg-transparent hover:scale-105 transition-transform duration-300"
                 >
                   <Card className={`flex flex-col h-full rounded-[20px] border ${c.border} ${c.bg} shadow-sm`}>
-                    <CardHeader className="p-5 pb-2">
+                    <CardHeader className="p-5 pb-2 flex flex-row items-start justify-between space-y-0">
                       <div className="flex items-center gap-2">
                         <Icon size={16} className={c.color} />
                         <CardTitle className="font-bold text-sm text-foreground">{c.titulo}</CardTitle>
                       </div>
+                      {supported && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            speak(`${c.titulo}. ${c.conteudo}`);
+                          }}
+                          aria-label={`Ouvir explicação sobre ${c.titulo}`}
+                          className="text-muted-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full p-1 -mt-1 -mr-1"
+                        >
+                          <Volume2 size={16} className={isSpeaking ? "animate-pulse text-primary" : ""} />
+                        </button>
+                      )}
                     </CardHeader>
                     <CardContent className="p-5 pt-0">
                       <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">{c.conteudo}</p>
@@ -278,7 +306,9 @@ export default function PickingPage() {
                       placeholder="Bipe o código de barras aqui..."
                       value={eanInput}
                       onChange={(e) => setEanInput(e.target.value)}
-                      className="w-full px-4 py-3 text-sm font-mono rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className={`w-full px-4 py-3 text-sm font-mono rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${
+                        shakeError ? "animate-pulse border-red-500 bg-red-500/10 focus:ring-red-500" : ""
+                      }`}
                     />
                   </div>
                   <button

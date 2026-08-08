@@ -11,13 +11,16 @@ import {
   AlertTriangle,
   Loader2,
   Globe,
+  Volume2,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEquipe } from "@/hooks/use-equipe"
+import { useTextToSpeech } from "@/hooks/use-tts"
 import { getTurnoAtivoComItens, enderecarItem } from "@/src/actions/wms"
 import type { Item } from "@prisma/client"
+import { toast } from "sonner"
 
 const regrasNegocio = [
   {
@@ -74,7 +77,8 @@ const regrasNegocio = [
 
 export default function EstoquePage() {
   const { equipeId, usuarioId, isLoaded } = useEquipe()
-  
+  const { speak, isSpeaking, supported } = useTextToSpeech()
+
   const [itens, setItens] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [submittingId, setSubmittingId] = useState<string | null>(null)
@@ -104,6 +108,8 @@ export default function EstoquePage() {
     const posicao = posicaoInputs[itemId]?.trim()
     if (!posicao) {
       setErro("Informe uma posição de armazenamento (ex: Rua A, Nível 2).")
+      toast.error("Informe uma posição de armazenamento.")
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([200, 100, 200])
       return
     }
 
@@ -119,6 +125,8 @@ export default function EstoquePage() {
       await carregarDados()
     } else {
       setErro(res.erro)
+      toast.error(res.erro || "Erro ao endereçar item.")
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([200, 100, 200])
     }
     setSubmittingId(null)
   }
@@ -174,11 +182,23 @@ export default function EstoquePage() {
                   className="rounded-[22px] bg-transparent hover:scale-105 transition-transform duration-300"
                 >
                   <Card className={`flex flex-col h-full rounded-[20px] border ${r.border} ${r.bg} shadow-sm`}>
-                    <CardHeader className="p-5 pb-2">
+                    <CardHeader className="p-5 pb-2 flex flex-row items-start justify-between space-y-0">
                       <div className="flex items-center gap-2">
                         <Icon size={16} className={r.color} />
                         <CardTitle className="font-bold text-sm text-foreground">{r.sigla} - {r.nome}</CardTitle>
                       </div>
+                      {supported && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            speak(`${r.sigla} significa ${r.nome}. ${r.descricao}. Exemplo: ${r.exemplo}`);
+                          }}
+                          aria-label={`Ouvir explicação sobre ${r.sigla}`}
+                          className="text-muted-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full p-1 -mt-1 -mr-1"
+                        >
+                          <Volume2 size={16} className={isSpeaking ? "animate-pulse text-primary" : ""} />
+                        </button>
+                      )}
                     </CardHeader>
                     <CardContent className="p-5 pt-0">
                       <p className="text-xs text-muted-foreground leading-relaxed mb-2">{r.descricao}</p>

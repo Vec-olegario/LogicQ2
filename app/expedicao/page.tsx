@@ -10,13 +10,16 @@ import {
   Loader2,
   Package,
   ShieldAlert,
+  Volume2,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEquipe } from "@/hooks/use-equipe"
+import { useTextToSpeech } from "@/hooks/use-tts"
 import { getTurnoAtivoComItens, expedirItem } from "@/src/actions/wms"
 import type { Item } from "@prisma/client"
+import { toast } from "sonner"
 
 const conceitosDidaticos = [
   {
@@ -55,6 +58,7 @@ const conceitosDidaticos = [
 
 export default function ExpedicaoPage() {
   const { equipeId, usuarioId, isLoaded } = useEquipe()
+  const { speak, isSpeaking, supported } = useTextToSpeech()
   const [itens, setItens] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [submittingId, setSubmittingId] = useState<string | null>(null)
@@ -84,6 +88,8 @@ export default function ExpedicaoPage() {
     const docaSaida = docaInputs[itemId]?.trim()
     if (!docaSaida) {
       setErro("Informe a doca de saída (ex: Doca 1).")
+      toast.error("Informe a doca de saída.")
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([200, 100, 200])
       return
     }
 
@@ -99,6 +105,8 @@ export default function ExpedicaoPage() {
       await carregarDados()
     } else {
       setErro(res.erro)
+      toast.error(res.erro || "Erro ao expedir item.")
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([200, 100, 200])
     }
     setSubmittingId(null)
   }
@@ -160,11 +168,23 @@ export default function ExpedicaoPage() {
                   className="rounded-[22px] bg-transparent hover:scale-105 transition-transform duration-300"
                 >
                   <Card className={`flex flex-col h-full rounded-[20px] border ${c.border} ${c.bg} shadow-sm`}>
-                    <CardHeader className="p-5 pb-2">
+                    <CardHeader className="p-5 pb-2 flex flex-row items-start justify-between space-y-0">
                       <div className="flex items-center gap-2">
                         <Icon size={16} className={c.color} />
                         <CardTitle className="font-bold text-sm text-foreground">{c.titulo}</CardTitle>
                       </div>
+                      {supported && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            speak(`${c.titulo}. ${c.conteudo}`);
+                          }}
+                          aria-label={`Ouvir explicação sobre ${c.titulo}`}
+                          className="text-muted-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full p-1 -mt-1 -mr-1"
+                        >
+                          <Volume2 size={16} className={isSpeaking ? "animate-pulse text-primary" : ""} />
+                        </button>
+                      )}
                     </CardHeader>
                     <CardContent className="p-5 pt-0">
                       <p className="text-xs text-muted-foreground leading-relaxed">{c.conteudo}</p>
