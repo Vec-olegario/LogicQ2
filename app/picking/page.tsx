@@ -157,10 +157,15 @@ export default function PickingPage() {
                 O Picking é a separação física dos produtos para atender aos pedidos. Sendo a etapa mais cara do CD, otimizar a rota de separação é vital. O uso de coletores de radiofrequência (RF) ou comandos de voz garante precisão no bipe e minimiza os erros de envio.
               </p>
               <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
-                <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 text-muted-foreground/70">
-                  <span className="text-2xl mb-2">⚠️</span>
-                  <span className="text-sm font-medium">Vídeo Indisponível</span>
-                </div>
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/invalid_video_id_x"
+                  title="Vídeo Explicativo do Picking"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                ></iframe>
               </div>
             </div>
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">
