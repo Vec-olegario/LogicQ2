@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   title: 'LogiQ — Simulador WMS Educacional',
   description: 'Plataforma gamificada de simulação de armazém logístico para aulas práticas. Gerencie recebimento, estoque, picking e expedição.',
   generator: 'v0.app',
+  other: {
+    'strix-verification': 'strix-verify-baa419c22f76ee53911fba9b93f8814a',
+  },
 }
 
 export default function RootLayout({
