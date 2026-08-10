@@ -150,15 +150,10 @@ export default function EstoquePage() {
                 O Estoque é o coração do CD, responsável por alocar os produtos nos endereços corretos (rua, nível e coluna), maximizando o espaço vertical e agilizando o picking. A correta aplicação de regras como FIFO e FEFO minimiza o desperdício de itens perecíveis.
               </p>
               <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                  title="Vídeo Explicativo do Estoque"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                ></iframe>
+                <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 text-muted-foreground/70">
+                  <span className="text-2xl mb-2">⚠️</span>
+                  <span className="text-sm font-medium">Vídeo Indisponível</span>
+                </div>
               </div>
             </div>
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">

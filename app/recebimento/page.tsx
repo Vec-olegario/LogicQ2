@@ -153,15 +153,10 @@ export default function RecebimentoPage() {
                 O Recebimento é a porta de entrada do Centro de Distribuição, onde ocorre a recepção e a conferência física das mercadorias contra a Nota Fiscal Eletrônica (NF-e). Falhas aqui propagam erros graves de inventário por todo o armazém.
               </p>
               <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                  title="Vídeo Explicativo do Recebimento"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                ></iframe>
+                <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 text-muted-foreground/70">
+                  <span className="text-2xl mb-2">⚠️</span>
+                  <span className="text-sm font-medium">Vídeo Indisponível</span>
+                </div>
               </div>
             </div>
 
