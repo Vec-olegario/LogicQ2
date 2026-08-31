@@ -25,8 +25,8 @@ import { toast } from "sonner"
 
 const regrasNegocio = [
   {
-    sigla: "FIFO",
-    nome: "First In, First Out",
+    sigla: "FIFO / PEPS",
+    nome: "First In, First Out (Primeiro a Entrar, Primeiro a Sair)",
     descricao: "O primeiro produto a entrar no estoque deve ser o primeiro a sair. Evita obsolescência e perdas por prazo vencido.",
     exemplo: "Caixa de sabão recebida em Jan/25 sai antes da caixa de Fev/25.",
     icon: RotateCcw,
@@ -35,8 +35,8 @@ const regrasNegocio = [
     border: "border-blue-200",
   },
   {
-    sigla: "FEFO",
-    nome: "First Expired, First Out",
+    sigla: "FEFO / PVPS",
+    nome: "First Expired, First Out (Primeiro a Vencer, Primeiro a Sair)",
     descricao: "O produto com validade mais próxima sai primeiro, independente da entrada. Obrigatório para alimentos e medicamentos.",
     exemplo: "Iogurte com vencimento em 15/03 sai antes do que vence em 30/03.",
     icon: Calendar,
@@ -56,7 +56,7 @@ const regrasNegocio = [
   },
   {
     sigla: "LIFO / UEPS",
-    nome: "Last In, First Out",
+    nome: "Last In, First Out (Último a Entrar, Primeiro a Sair)",
     descricao: "O último produto a entrar é o primeiro a sair. Usado apenas em materiais homogêneos sem validade (ex: brita, carvão).",
     exemplo: "Blocos de construção empilhados em granel.",
     icon: MapPin,

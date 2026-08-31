@@ -47,7 +47,7 @@ const conceitosDidaticos = [
   },
   {
     titulo: "SLA de Doca",
-    conteudo: "O SLA (Service Level Agreement) de doca define o tempo máximo que um caminhão pode permanecer descarregando. Ultrapassar o SLA gera multa contratual e bloqueia a doca para outros fornecedores.",
+    conteudo: "O SLA (Service Level Agreement - Acordo de Nível de Serviço) de doca define o tempo máximo que um caminhão pode permanecer descarregando. Ultrapassar o SLA gera multa contratual e bloqueia a doca para outros fornecedores.",
     icon: Clock,
     color: "text-amber-600",
     bg: "bg-amber-50",

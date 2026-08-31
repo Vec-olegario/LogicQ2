@@ -28,14 +28,14 @@ import { toast } from "sonner"
 const conceitosDidaticos = [
   {
     titulo: "Metodologias de Picking",
-    conteudo: "• Onda (Wave): Agrupa pedidos por rotas/horários.\n• Zona (Zone): CD dividido em setores estilo linha de montagem.\n• Discreto: Um operador coleta um pedido do início ao fim.",
+    conteudo: "• Onda (Wave): Agrupa pedidos por rotas/horários.\n• Zona (Zone): CD dividido em setores estilo linha de montagem.\n• Discreto (Discrete Picking): Um operador coleta um pedido do início ao fim.",
     icon: Zap,
     color: "text-amber-600",
     bg: "bg-amber-50",
     border: "border-amber-200",
   },
   {
-    titulo: "Slotting & Roteirização Interna",
+    titulo: "Slotting (Alocação Estratégica) & Roteirização Interna",
     conteudo: "O WMS gera a menor rota física dentro dos corredores para evitar que o operador perca tempo caminhando de ida e volta desnecessariamente no galpão.",
     icon: MapPin,
     color: "text-blue-600",

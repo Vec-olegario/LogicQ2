@@ -141,7 +141,7 @@ export default function HomePage() {
               <div className="mb-4">
                 <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-primary/30 text-primary bg-primary/8">
                   <span className="status-dot bg-primary" />
-                  Simulador WMS Educacional
+                  Plataforma de Aprendizagem
                 </span>
               </div>
 
@@ -161,7 +161,7 @@ export default function HomePage() {
 
               {/* Sub */}
               <p className="text-base text-muted-foreground leading-relaxed text-pretty sm:text-lg/relaxed mb-5">
-                Simulador WMS de um Centro de Distribuição — do recebimento à expedição.
+                Plataforma de aprendizagem de processos logísticos — do recebimento à expedição.
                 <br className="hidden sm:inline" /> Videoaulas integradas transformando teoria em experiência prática.
               </p>
 

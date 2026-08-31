@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { Instrument_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { SmoothScroll } from "@/components/smooth-scroll"
-import { ChatbotAtlas } from "@/components/logiq/chatbot-atlas"
 import { A11yProvider } from "@/contexts/a11y-context"
 import { A11yWidget } from "@/components/logiq/a11y-widget"
 import { Toaster } from "sonner"
@@ -21,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'LogiQ — Simulador WMS Educacional',
+  title: 'LogiQ — Plataforma de Aprendizagem',
   description: 'Plataforma gamificada de simulação de armazém logístico para aulas práticas. Gerencie recebimento, estoque, picking e expedição.',
   generator: 'v0.app',
   other: {
@@ -40,7 +39,6 @@ export default function RootLayout({
         <A11yProvider>
           <SmoothScroll>
             {children}
-            <ChatbotAtlas />
             <A11yWidget />
           </SmoothScroll>
           <Toaster richColors position="top-right" />

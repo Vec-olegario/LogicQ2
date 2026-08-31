@@ -24,7 +24,7 @@ import { toast } from "sonner"
 
 const conceitosDidaticos = [
   {
-    titulo: "OTIF (On-Time In-Full)",
+    titulo: "OTIF (On-Time In-Full - No Prazo e Completo)",
     conteudo: "O indicador de ouro da logística. Mede se as entregas foram feitas rigorosamente no prazo (On-Time) e sem faltas ou avarias (In-Full).",
     icon: PackageCheck,
     color: "text-violet-600",
@@ -32,7 +32,7 @@ const conceitosDidaticos = [
     border: "border-violet-200",
   },
   {
-    titulo: "TMS (Transportation Management)",
+    titulo: "TMS (Transportation Management System - Sistema de Gestão de Transportes)",
     conteudo: "Sistema focado no transporte externo. Cuida de roteirização inteligente de frotas, cálculo de fretes e rastreamento em tempo real.",
     icon: Truck,
     color: "text-blue-600",
@@ -40,7 +40,7 @@ const conceitosDidaticos = [
     border: "border-blue-200",
   },
   {
-    titulo: "Comprovante POD (Proof of Delivery)",
+    titulo: "Comprovante POD (Proof of Delivery - Prova de Entrega)",
     conteudo: "Documento assinado pelo destinatário ao receber a carga. Encerra legalmente a responsabilidade da transportadora.",
     icon: CheckCircle2,
     color: "text-emerald-600",
