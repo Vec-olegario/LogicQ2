@@ -20,16 +20,19 @@ import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect"
 import { NoiseBackground } from "@/components/ui/noise-background"
 
 const heroLine1 = [
-  { text: "Gerencie" },
-  { text: "um" },
-  { text: "Centro" },
+  { text: "Plataforma" },
   { text: "de" },
+  { text: "Aprendizagem" },
 ]
 
 const heroLine2 = [
-  { text: "Distribuição" },
+  { text: "por" },
+  { text: "simulação" },
+  { text: "de" },
+  { text: "processos" },
   {
-    text: "real.",
+    text: "logísticos.",
+    className: "text-primary"
   },
 ]
 

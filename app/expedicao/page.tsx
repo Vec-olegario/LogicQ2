@@ -13,6 +13,7 @@ import {
   Volume2,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
+import { VideoPlayer } from "@/components/logiq/video-player"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
@@ -130,15 +131,11 @@ export default function ExpedicaoPage() {
                 A Expedição é a etapa final do armazém, onde os pedidos separados são consolidados, conferidos e direcionados à doca de saída correta. Uma operação ágil garante a saída pontual da carga, otimizando o indicador <strong>OTIF (On-Time In-Full)</strong> e a satisfação do cliente final.
               </p>
               <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/invalid_video_id_x"
+                <VideoPlayer
+                  videoId="invalid_video_id_x"
+                  thumbnailSrc="/expedição.jpg"
                   title="Vídeo Explicativo da Expedição"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                ></iframe>
+                />
               </div>
             </div>
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">

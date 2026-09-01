@@ -16,6 +16,7 @@ import {
   Volume2,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
+import { VideoPlayer } from "@/components/logiq/video-player"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
@@ -157,15 +158,11 @@ export default function PickingPage() {
                 O Picking é a separação física dos produtos para atender aos pedidos. Sendo a etapa mais cara do CD, otimizar a rota de separação é vital. O uso de coletores de radiofrequência (RF) ou comandos de voz garante precisão no bipe e minimiza os erros de envio.
               </p>
               <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/invalid_video_id_x"
+                <VideoPlayer
+                  videoId="invalid_video_id_x"
+                  thumbnailSrc="/picking.jpg"
                   title="Vídeo Explicativo do Picking"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                ></iframe>
+                />
               </div>
             </div>
             <div className="glass rounded-3xl p-6 border border-border shadow-sm">

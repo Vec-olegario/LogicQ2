@@ -18,6 +18,7 @@ import {
   Volume2,
 } from "lucide-react"
 import { PageShell } from "@/components/logiq/page-shell"
+import { VideoPlayer } from "@/components/logiq/video-player"
 import { BackgroundGradient } from "@/components/ui/background-gradient"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
@@ -153,15 +154,11 @@ export default function RecebimentoPage() {
                 O Recebimento é a porta de entrada do Centro de Distribuição, onde ocorre a recepção e a conferência física das mercadorias contra a Nota Fiscal Eletrônica (NF-e). Falhas aqui propagam erros graves de inventário por todo o armazém.
               </p>
               <div className="relative aspect-video rounded-xl overflow-hidden border border-border/50 mt-2.5">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/invalid_video_id_x"
+                <VideoPlayer
+                  videoId="invalid_video_id_x"
+                  thumbnailSrc="/recebimento.jpg"
                   title="Vídeo Explicativo do Recebimento"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                ></iframe>
+                />
               </div>
             </div>
 
